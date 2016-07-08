@@ -1,16 +1,27 @@
-require('load-grunt-tasks')(grunt);
+'use strict';
 
 var sourceFiles = [
+  'src/setup.js',
   'src/components/**/*.js',
   'src/slitherbots.js'
 ];
 
 module.exports = function(grunt) {
+  require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
     jshint: {
       files: sourceFiles,
-      options: {}
+      options: {esversion: 6}
+    },
+    concat: {
+      options: {
+        separator: ';',
+      },
+      dist: {
+        src: sourceFiles,
+        dest: 'build/app.es6.js',
+      },
     },
     watch: {
       files: ['<%= jshint.files %>'],
@@ -23,16 +34,16 @@ module.exports = function(grunt) {
         },
         dist: {
             files: {
-                'dist/app.js': 'src/slitherbots.js'
+                'dist/app.js': 'build/app.es6.js'
             }
         }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['jshint', 'babel']);
+  grunt.registerTask('default', ['jshint', 'concat', 'babel']);
 
 };
