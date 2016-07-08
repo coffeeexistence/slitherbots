@@ -10,10 +10,27 @@ game.engine = () => {
   let renderService = () => {
     let render = {};
 
-    render.spritesByColor = new Map();
+    let spritesByColor = new Map();
 
     render.addSprite = (sprite) => {
-      
+      if(!spritesByColor.has(sprite.color)){
+        spritesByColor.set(sprite.color, []);
+      }
+      spritesByColor.get(sprite.color).push(sprite);
+    };
+
+    render.update = () => {
+      let ctx = engine.canvas.getContext('2d');
+      let drawColorGroup = (sprites, color) {
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        sprites.forEach( (sprite) => {
+          sprite.draw(ctx);
+        });
+        ctx.fill();
+        ctx.closePath();
+      };
+      spritesByColor.forEach(drawColorGroup);
     };
 
     return render;
