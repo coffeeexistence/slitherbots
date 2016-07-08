@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="1900" height="1900" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+
+  var c = document.getElementById("myCanvas");
+
+
+  function drawLine(startX, startY, endX, endY) {
+    var ctx = c.getContext("2d");
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+  }
+
+  function treeIteration(startX, startY, length, depth) {
+
+    if(depth<1) { return;}
+    var turn = (depth%2)==0;
+    var newLength = (length / 1.41);
+
+    var l1X = (turn) ? (startX+newLength) : (startX);
+    var l1Y = (turn) ? (startY) : (startY+newLength);
+
+    var l2X = (turn) ? (startX-newLength) : (startX);
+    var l2Y = (turn) ? (startY) : (startY-newLength);
+
+    drawLine(startX, startY, l1X, l1Y);
+    drawLine(startX, startY, l2X, l2Y);
+
+    treeIteration(l1X, l1Y, newLength, depth-1);
+    treeIteration(l2X, l2Y, newLength, depth-1);
+  }
+
+  function start(canvas, depth) {
+    var startX = canvas.width/2;
+    var startY = canvas.height/2;
+    var length = canvas.width/3;
+    treeIteration(startX, startY, length, depth);
+  }
+
+  start(c, 10);
+
+
+
+
+
+</script>
+
+</body>
+</html>
