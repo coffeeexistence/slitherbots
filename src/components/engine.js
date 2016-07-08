@@ -1,4 +1,4 @@
-game.engine = () => {
+let engineService = () => {
   let engine = {};
 
   engine.initialize = ({canvas}) => {
@@ -21,7 +21,7 @@ game.engine = () => {
 
     render.update = () => {
       let ctx = engine.canvas.getContext('2d');
-      let drawColorGroup = (sprites, color) {
+      let drawColorGroup = (sprites, color) => {
         ctx.beginPath();
         ctx.fillStyle = color;
         sprites.forEach( (sprite) => {
@@ -42,3 +42,5 @@ game.engine = () => {
 
   return engine;
 };
+
+game.engine = engineService();
