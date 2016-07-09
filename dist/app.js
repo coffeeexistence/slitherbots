@@ -5,17 +5,25 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var game = {};
-;
+;var angleToDirection = function angleToDirection(_ref) {
+  var angle = _ref.angle;
+  var distance = _ref.distance;
+
+  return {
+    x: distance * Math.cos(angle),
+    y: distance * Math.sin(angle)
+  };
+};
+
 var Creature = function () {
-  function Creature(_ref) {
-    var _ref$position = _ref.position;
-    var position = _ref$position === undefined ? { x: 0, y: 0 } : _ref$position;
-    var _ref$color = _ref.color;
-    var color = _ref$color === undefined ? 'red' : _ref$color;
-    var _ref$length = _ref.length;
-    var length = _ref$length === undefined ? 10 : _ref$length;
-    var _ref$direction = _ref.direction;
-    var direction = _ref$direction === undefined ? { x: 1, y: 0.5 } : _ref$direction;
+  function Creature(_ref2) {
+    var _ref2$position = _ref2.position;
+    var position = _ref2$position === undefined ? { x: 0, y: 0 } : _ref2$position;
+    var _ref2$color = _ref2.color;
+    var color = _ref2$color === undefined ? 'red' : _ref2$color;
+    var _ref2$length = _ref2.length;
+    var length = _ref2$length === undefined ? 10 : _ref2$length;
+    var direction = _ref2.direction;
 
     _classCallCheck(this, Creature);
 
@@ -23,7 +31,10 @@ var Creature = function () {
     this.segmentPositions = [position];
 
     this.color = color;
-    this.direction = direction;
+
+    this.stepDistance = 1;
+    this.direction = angleToDirection({ angle: direction, distance: this.stepDistance });
+
     this.length = length;
   }
 
@@ -40,9 +51,15 @@ var Creature = function () {
       }
     }
   }, {
+    key: 'updateDirection',
+    value: function updateDirection(angle) {
+      var newDirection = angleToDirection({ angle: angle, distance: this.stepDistance });
+      this.direction = newDirection;
+    }
+  }, {
     key: 'radius',
     value: function radius() {
-      return 10 + this.length / 10;
+      return 5 + this.length / 10;
     }
   }, {
     key: 'sprites',
@@ -75,8 +92,8 @@ var Creature = function () {
 ;var engineService = function engineService() {
   var engine = {};
 
-  engine.initialize = function (_ref2) {
-    var canvas = _ref2.canvas;
+  engine.initialize = function (_ref3) {
+    var canvas = _ref3.canvas;
 
     engine.canvas = canvas;
   };
@@ -133,13 +150,14 @@ var Creature = function () {
       ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
       var drawColorGroup = function drawColorGroup(sprites, color) {
-        ctx.beginPath();
-        ctx.fillStyle = color;
+
         sprites.forEach(function (sprite) {
+          ctx.beginPath();
+          ctx.fillStyle = color;
           sprite.draw(ctx);
+          ctx.fill();
+          ctx.closePath();
         });
-        ctx.fill();
-        ctx.closePath();
       };
       entitySpritesMap.forEach(drawColorGroup);
     };
@@ -154,12 +172,12 @@ var Creature = function () {
 
 game.engine = engineService();
 ;
-var Sprite = function Sprite(_ref3) {
-  var type = _ref3.type;
-  var position = _ref3.position;
-  var color = _ref3.color;
-  var _ref3$radius = _ref3.radius;
-  var radius = _ref3$radius === undefined ? 40 : _ref3$radius;
+var Sprite = function Sprite(_ref4) {
+  var type = _ref4.type;
+  var position = _ref4.position;
+  var color = _ref4.color;
+  var _ref4$radius = _ref4.radius;
+  var radius = _ref4$radius === undefined ? 40 : _ref4$radius;
 
   _classCallCheck(this, Sprite);
 
@@ -183,13 +201,22 @@ console.log(game);
 game.engine.initialize({ canvas: canvas });
 game.engine.logCanvas();
 
-var slitherbot = new Creature({ position: { x: 50, y: 50 }, length: 50 });
+var canvasCenter = { x: canvas.width / 2, y: canvas.height / 2 };
+
+var slitherbot = new Creature({ position: canvasCenter, length: 50, direction: 100 });
 
 game.engine.render.addEntity(slitherbot);
 
+var count = 0;
+var direction = 1;
+
 window.setInterval(function () {
+  if (count % 10 === 0) {
+    direction += 0.2;slitherbot.updateDirection(direction);
+  }
+  count++;
   window.requestAnimationFrame(game.engine.render.update);
-}, 10);
+}, 5);
 
 /*
 var ctx = c.getContext("2d");

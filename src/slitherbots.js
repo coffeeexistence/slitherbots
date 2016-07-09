@@ -5,14 +5,20 @@ console.log(game);
 game.engine.initialize({canvas: canvas});
 game.engine.logCanvas();
 
-let slitherbot = new Creature({position: {x:50, y:50}, length: 50});
+let canvasCenter = {x: canvas.width/2, y: canvas.height/2};
+
+let slitherbot = new Creature({position: canvasCenter, length: 50, direction: 100});
 
 game.engine.render.addEntity(slitherbot);
 
+let count = 0;
+let direction = 1;
 
 window.setInterval( () => {
+  if(count%10===0) { direction+=0.2; slitherbot.updateDirection(direction); }
+  count++;
   window.requestAnimationFrame(game.engine.render.update);
-}, 10);
+}, 5);
 
 /*
 var ctx = c.getContext("2d");

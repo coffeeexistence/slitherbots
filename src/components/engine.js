@@ -60,13 +60,15 @@ let engineService = () => {
       ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
       let drawColorGroup = (sprites, color) => {
-        ctx.beginPath();
-        ctx.fillStyle = color;
+
         sprites.forEach( (sprite) => {
+          ctx.beginPath();
+          ctx.fillStyle = color;
           sprite.draw(ctx);
+          ctx.fill();
+          ctx.closePath();
         });
-        ctx.fill();
-        ctx.closePath();
+
       };
       entitySpritesMap.forEach(drawColorGroup);
     };

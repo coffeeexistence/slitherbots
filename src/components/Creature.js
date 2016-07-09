@@ -1,12 +1,23 @@
+let angleToDirection = ({angle, distance}) => {
+  return {
+    x: (distance * Math.cos(angle)),
+    y: (distance * Math.sin(angle))
+  };
+};
+
 class Creature {
-  constructor({position={x:0, y:0}, color='red', length=10, direction={x:1, y:0.5}}) {
+  constructor({position={x:0, y:0}, color='red', length=10, direction}) {
 
     this.currentPosition = position;
     this.segmentPositions = [position];
 
     this.color = color;
-    this.direction = direction;
+
+    this.stepDistance = 1;
+    this.direction = angleToDirection({angle: direction, distance: this.stepDistance});
+
     this.length = length;
+
   }
 
   move() {
@@ -20,8 +31,13 @@ class Creature {
     }
   }
 
+  updateDirection(angle) {
+    let newDirection = angleToDirection({angle: angle, distance: this.stepDistance});
+    this.direction = newDirection;
+  }
+
   radius() {
-    return 10+(this.length/10);
+    return 5+(this.length/10);
   }
 
   sprites() {
