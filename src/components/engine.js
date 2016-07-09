@@ -13,12 +13,10 @@ let engineService = () => {
 
 
     let addSprite = (sprite, spriteMap) => {
-      console.log(sprite);
       if(!spriteMap.has(sprite.color)){
         spriteMap.set(sprite.color, []);
       }
       spriteMap.get(sprite.color).push(sprite);
-      console.log(spriteMap.get(sprite.color));
     };
 
     let addSprites = (sprites, spriteMap) => {
@@ -58,8 +56,10 @@ let engineService = () => {
       let entitySpritesMap = entities.sprites();
 
       let ctx = engine.canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+
       let drawColorGroup = (sprites, color) => {
-        console.log(color);
         ctx.beginPath();
         ctx.fillStyle = color;
         sprites.forEach( (sprite) => {

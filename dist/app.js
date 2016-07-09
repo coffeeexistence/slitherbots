@@ -89,12 +89,10 @@ var Creature = function () {
     var render = {};
 
     var addSprite = function addSprite(sprite, spriteMap) {
-      console.log(sprite);
       if (!spriteMap.has(sprite.color)) {
         spriteMap.set(sprite.color, []);
       }
       spriteMap.get(sprite.color).push(sprite);
-      console.log(spriteMap.get(sprite.color));
     };
 
     var addSprites = function addSprites(sprites, spriteMap) {
@@ -131,8 +129,10 @@ var Creature = function () {
       var entitySpritesMap = entities.sprites();
 
       var ctx = engine.canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+
       var drawColorGroup = function drawColorGroup(sprites, color) {
-        console.log(color);
         ctx.beginPath();
         ctx.fillStyle = color;
         sprites.forEach(function (sprite) {
@@ -183,13 +183,13 @@ console.log(game);
 game.engine.initialize({ canvas: canvas });
 game.engine.logCanvas();
 
-var slitherbot = new Creature({ position: { x: 50, y: 50 } });
+var slitherbot = new Creature({ position: { x: 50, y: 50 }, length: 50 });
 
 game.engine.render.addEntity(slitherbot);
 
 window.setInterval(function () {
   window.requestAnimationFrame(game.engine.render.update);
-}, 500);
+}, 10);
 
 /*
 var ctx = c.getContext("2d");
