@@ -1,13 +1,82 @@
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var game = {};
+;
+var Creature = function () {
+  function Creature(_ref) {
+    var _ref$position = _ref.position;
+    var position = _ref$position === undefined ? { x: 0, y: 0 } : _ref$position;
+    var _ref$color = _ref.color;
+    var color = _ref$color === undefined ? 'red' : _ref$color;
+    var _ref$length = _ref.length;
+    var length = _ref$length === undefined ? 10 : _ref$length;
+    var _ref$direction = _ref.direction;
+    var direction = _ref$direction === undefined ? { x: 1, y: 0.5 } : _ref$direction;
+
+    _classCallCheck(this, Creature);
+
+    this.currentPosition = position;
+    this.segmentPositions = [position];
+
+    this.color = color;
+    this.direction = direction;
+    this.length = length;
+  }
+
+  _createClass(Creature, [{
+    key: 'move',
+    value: function move() {
+      var newSegmentPosition = {
+        x: this.currentPosition.x += this.direction.x,
+        y: this.currentPosition.y += this.direction.y
+      };
+      this.segmentPositions.unshift(newSegmentPosition);
+      if (this.segmentPositions.length > this.length) {
+        this.segmentPositions.pop();
+      }
+    }
+  }, {
+    key: 'radius',
+    value: function radius() {
+      return 10 + this.length / 10;
+    }
+  }, {
+    key: 'sprites',
+    value: function sprites() {
+      return this.segments();
+    }
+  }, {
+    key: 'segment',
+    value: function segment(position) {
+      return new Sprite({
+        type: 'circle',
+        radius: this.radius(),
+        position: { x: position.x, y: position.y },
+        color: this.color
+      });
+    }
+  }, {
+    key: 'segments',
+    value: function segments() {
+      var creature = this;
+      return this.segmentPositions.map(function (position) {
+        return creature.segment(position);
+      });
+    }
+  }]);
+
+  return Creature;
+}();
+
 ;var engineService = function engineService() {
   var engine = {};
 
-  engine.initialize = function (_ref) {
-    var canvas = _ref.canvas;
+  engine.initialize = function (_ref2) {
+    var canvas = _ref2.canvas;
 
     engine.canvas = canvas;
   };
@@ -19,18 +88,51 @@ var game = {};
   var renderService = function renderService() {
     var render = {};
 
-    var spritesByColor = new Map();
-
-    render.addSprite = function (sprite) {
-      if (!spritesByColor.has(sprite.color)) {
-        spritesByColor.set(sprite.color, []);
+    var addSprite = function addSprite(sprite, spriteMap) {
+      console.log(sprite);
+      if (!spriteMap.has(sprite.color)) {
+        spriteMap.set(sprite.color, []);
       }
-      spritesByColor.get(sprite.color).push(sprite);
+      spriteMap.get(sprite.color).push(sprite);
+      console.log(spriteMap.get(sprite.color));
+    };
+
+    var addSprites = function addSprites(sprites, spriteMap) {
+      sprites.forEach(function (sprite) {
+        addSprite(sprite, spriteMap);
+      });
+    };
+
+    var entities = {
+      all: []
+    };
+
+    entities.sprites = function () {
+      var spritesMap = new Map();
+      entities.all.forEach(function (entity) {
+        addSprites(entity.sprites(), spritesMap);
+      });
+      // console.log(spritesMap.values());
+      return spritesMap;
+    };
+
+    entities.update = function () {
+      entities.all.forEach(function (entity) {
+        entity.move();
+      });
+    };
+
+    render.addEntity = function (entity) {
+      entities.all.push(entity);
     };
 
     render.update = function () {
+      entities.update();
+      var entitySpritesMap = entities.sprites();
+
       var ctx = engine.canvas.getContext('2d');
       var drawColorGroup = function drawColorGroup(sprites, color) {
+        console.log(color);
         ctx.beginPath();
         ctx.fillStyle = color;
         sprites.forEach(function (sprite) {
@@ -39,7 +141,7 @@ var game = {};
         ctx.fill();
         ctx.closePath();
       };
-      spritesByColor.forEach(drawColorGroup);
+      entitySpritesMap.forEach(drawColorGroup);
     };
 
     return render;
@@ -52,12 +154,12 @@ var game = {};
 
 game.engine = engineService();
 ;
-var Sprite = function Sprite(_ref2) {
-  var type = _ref2.type;
-  var position = _ref2.position;
-  var color = _ref2.color;
-  var _ref2$radius = _ref2.radius;
-  var radius = _ref2$radius === undefined ? 40 : _ref2$radius;
+var Sprite = function Sprite(_ref3) {
+  var type = _ref3.type;
+  var position = _ref3.position;
+  var color = _ref3.color;
+  var _ref3$radius = _ref3.radius;
+  var radius = _ref3$radius === undefined ? 40 : _ref3$radius;
 
   _classCallCheck(this, Sprite);
 
@@ -81,30 +183,13 @@ console.log(game);
 game.engine.initialize({ canvas: canvas });
 game.engine.logCanvas();
 
-var slitherbot = new Sprite({
-  type: 'circle',
-  position: { x: 0, y: canvas.height / 3 },
-  color: 'blue'
-});
+var slitherbot = new Creature({ position: { x: 50, y: 50 } });
 
-var slitherbot2 = new Sprite({
-  type: 'circle',
-  position: { x: canvas.width, y: canvas.height / 2 },
-  color: 'red'
-});
-
-game.engine.render.addSprite(slitherbot);
-game.engine.render.addSprite(slitherbot2);
-
-var move = function move() {
-  slitherbot.position.x += 1;
-  slitherbot2.position.x -= 1;
-  game.engine.render.update();
-};
+game.engine.render.addEntity(slitherbot);
 
 window.setInterval(function () {
-  window.requestAnimationFrame(move);
-}, 10);
+  window.requestAnimationFrame(game.engine.render.update);
+}, 500);
 
 /*
 var ctx = c.getContext("2d");

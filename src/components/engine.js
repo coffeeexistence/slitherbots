@@ -12,12 +12,13 @@ let engineService = () => {
 
 
 
-
     let addSprite = (sprite, spriteMap) => {
+      console.log(sprite);
       if(!spriteMap.has(sprite.color)){
         spriteMap.set(sprite.color, []);
       }
       spriteMap.get(sprite.color).push(sprite);
+      console.log(spriteMap.get(sprite.color));
     };
 
     let addSprites = (sprites, spriteMap) => {
@@ -32,12 +33,19 @@ let engineService = () => {
       all: []
     };
 
-    entities.sprites = function() {
+    entities.sprites = () => {
       let spritesMap = new Map();
-      this.all.forEach((entity) => {
-        addSprites(entity.sprites, spritesMap);
+      entities.all.forEach((entity) => {
+        addSprites(entity.sprites(), spritesMap);
       });
+      // console.log(spritesMap.values());
       return spritesMap;
+    };
+
+    entities.update = () => {
+      entities.all.forEach((entity) => {
+        entity.move();
+      });
     };
 
     render.addEntity = (entity) => { entities.all.push(entity); };
@@ -46,18 +54,21 @@ let engineService = () => {
 
 
     render.update = () => {
-      let spritesMap = entities.sprites();
+      entities.update();
+      let entitySpritesMap = entities.sprites();
+
       let ctx = engine.canvas.getContext('2d');
-      let drawColorGroup = (spritesMap, color) => {
+      let drawColorGroup = (sprites, color) => {
+        console.log(color);
         ctx.beginPath();
         ctx.fillStyle = color;
-        spritesMap.forEach( (sprite) => {
+        sprites.forEach( (sprite) => {
           sprite.draw(ctx);
         });
         ctx.fill();
         ctx.closePath();
       };
-      spritesMap.forEach(drawColorGroup);
+      entitySpritesMap.forEach(drawColorGroup);
     };
 
 
