@@ -10,35 +10,62 @@ let engineService = () => {
   let renderService = () => {
     let render = {};
 
-    let spritesByColor = new Map();
 
-    render.addSprite = (sprite) => {
-      if(!spritesByColor.has(sprite.color)){
-        spritesByColor.set(sprite.color, []);
+
+
+    let addSprite = (sprite, spriteMap) => {
+      if(!spriteMap.has(sprite.color)){
+        spriteMap.set(sprite.color, []);
       }
-      spritesByColor.get(sprite.color).push(sprite);
+      spriteMap.get(sprite.color).push(sprite);
     };
 
+    let addSprites = (sprites, spriteMap) => {
+      sprites.forEach((sprite)=>{
+        addSprite(sprite, spriteMap);
+      });
+    };
+
+
+
+    let entities = {
+      all: []
+    };
+
+    entities.sprites = function() {
+      let spritesMap = new Map();
+      this.all.forEach((entity) => {
+        addSprites(entity.sprites, spritesMap);
+      });
+      return spritesMap;
+    };
+
+    render.addEntity = (entity) => { entities.all.push(entity); };
+
+
+
+
     render.update = () => {
+      let spritesMap = entities.sprites();
       let ctx = engine.canvas.getContext('2d');
-      let drawColorGroup = (sprites, color) => {
+      let drawColorGroup = (spritesMap, color) => {
         ctx.beginPath();
         ctx.fillStyle = color;
-        sprites.forEach( (sprite) => {
+        spritesMap.forEach( (sprite) => {
           sprite.draw(ctx);
         });
         ctx.fill();
         ctx.closePath();
       };
-      spritesByColor.forEach(drawColorGroup);
+      spritesMap.forEach(drawColorGroup);
     };
+
+
 
     return render;
   };
 
   engine.render = renderService();
-
-
 
   return engine;
 };
