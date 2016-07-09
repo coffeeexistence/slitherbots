@@ -1,5 +1,5 @@
 class Creature {
-  constructor({position={x:0, y:0}, color='red', length=10}) {
+  constructor({position={x:0, y:0}, color='red', length=10, direction={x:1, y:0.5}}) {
     switch(type) {
       case 'circle':
         this.draw = function(ctx) {
@@ -8,21 +8,36 @@ class Creature {
         break;
     }
 
+    this.currentPosition = position;
     this.segmentPositions = [position];
 
     this.color = color;
+    this.direction = direction;
     this.length = length;
+  }
+
+  move() {
+    let newSegmentPosition = {
+      x: (this.currentPosition.x += this.direction.x),
+      y: (this.currentPosition.y += this.direction.y),
+    };
+    this.segmentPositions.unshift(newSegmentPosition);
+    if(this.segmentPositions.length > this.length) {
+      this.segmentPositions.pop();
+    }
   }
 
   radius() {
     return 10+(this.length/10);
   }
 
+  sprites() {
+    return this.segments();
+  }
+
   segments() {
-    let segmentSprites = [];
-    this.segmentPositions.forEach(function(position){
-      let newSegment = this.segment(position);
-      segmentSprites.push(newSegment);
+    return this.segmentPositions.map(function(position){
+      return this.segment(position);
     });
   }
 
@@ -31,7 +46,7 @@ class Creature {
       type: 'circle',
       radius: this.radius(),
       position: {x: position.x, y: position.y},
-      color: 'blue'
+      color: this.color
     });
   }
 
