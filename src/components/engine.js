@@ -60,12 +60,10 @@ let engineService = () => {
       ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
       let drawColorGroup = (sprites, color) => {
-
+        sprites.reverse();
         sprites.forEach( (sprite) => {
           ctx.beginPath();
-          ctx.fillStyle = color;
           sprite.draw(ctx);
-          ctx.fill();
           ctx.closePath();
         });
 

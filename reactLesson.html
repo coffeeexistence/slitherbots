@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Intro to React</title>
+  <meta charset="utf-8">
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react-with-addons.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react-dom.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.5.2/redux.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <style>
+    .user-profile {
+      width: 200px;
+      padding: 3px;
+      border: solid black thin;
+    }
+    .user-profile img {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      border: thin black solid;
+    }
+    .user-profile .details {
+      display: inline-block;
+      vertical-align: top;
+      margin-left: 10px;
+      margin-top: 5px;
+    }
+    .user-profile .color {
+      margin-top: 3px;
+      border-bottom: 2px solid blue;
+    }
+    .user-profile .first-name:after {
+      content: " "
+    }
+    </style>
+</head>
+<body>
+  <div id="root"></div>
+  <div id="app"></div>
+
+  <script type="text/babel">
+    var Counter = React.createClass({
+      getInitialState: function() {
+        return {count: 0};
+      },
+      inc: function () {
+        this.setState({count: ++this.state.count});
+      },
+      dec: function () {
+        this.setState({count: this.state.count-1});
+      },
+      square: function () {
+        this.setState({count: Math.pow(this.state.count, 2)});
+      },
+      sine: function () {
+        this.setState({count: Math.sin(this.state.count)});
+      },
+      sqrt: function () {
+        this.setState({count: Math.sqrt(this.state.count)});
+      },
+      life: function () {
+        this.setState({count: 42});
+      }
+      submitCustom: function () {
+        this.setState({count: this.state.custom});
+      },
+      customChange: function(ev) {
+        this.setState({custom: ev.target.value})
+      },
+      render: function () {
+        return (
+          <div>
+            <span>Counter: {this.state.count}</span>
+            <div>
+              <button onClick={this.dec}>-</button>
+              <button onClick={this.inc}>+</button>
+              <button onClick={this.square}>^2</button>
+              <button onClick={this.sine}>sin</button>
+              <button onClick={this.sqrt}>&radic;</button>
+              <button onClick={this.life}>Life</button>
+              <div />
+              <input onChange={this.customChange}>
+            </div>
+          </div>
+        );
+      }
+    });
+
+    ReactDOM.render(
+      <Counter />,
+      document.getElementById('app')
+    );
+  </script>
+</body>
+</html>
