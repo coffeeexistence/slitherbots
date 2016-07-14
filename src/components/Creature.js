@@ -14,13 +14,20 @@ let moveDirection = (start, movement) => {
   };
 };
 
+let invertDirection = (direction) => {
+  return {
+    x: direction.x * -1,
+    y: direction.y * -1
+  };
+};
+
 
 class Creature {
   constructor({
     position={x:0, y:0},
     color={r:255, g:0, b:0},
     length=10,
-    direction=90,
+    direction=0,
     autonomous=false,
     thinkInterval=100
     })
@@ -29,11 +36,12 @@ class Creature {
     this.currentPosition = position;
     this.segmentPositions = [position];
 
-    this.segmentDistance = 5;
+    this.segmentDistance = 7;
 
     this.color = color;
 
     this.stepDistance = 1;
+    this.angle = direction;
     this.direction = angleToDirection({angle: direction, distance: this.stepDistance});
 
     this.length = length;
@@ -53,24 +61,22 @@ class Creature {
     if(this.autonomous) {
       this.think();
     }
-    this.currentPosition = moveDirection(this.currentPosition, this.direction);
     this.segments.forEach((segment) => {
       segment.update();
     });
   }
 
   updateDirection(angle) {
+    this.currentAngle = angle;
     let newDirection = angleToDirection({angle: angle, distance: this.stepDistance});
-    this.direction = newDirection;
+    this.rootSegment.changeDirection(newDirection);
   }
 
   think() {
     if(this.brain.thinkStep > this.brain.thinkInterval) {
       this.brain.thinkStep = 0;
       let newDirection = parseInt((Math.random() * 720)-360);
-      console.log("i decided to go", newDirection);
-      this.updateDirection(newDirection);
-      console.log("new direction is", this.direction);
+      this.updateDirection(newDirection+this.angle);
     } else {
       this.brain.thinkStep++;
     }
@@ -84,7 +90,7 @@ class Creature {
   sprites() {
     return this.segments.map((segment) => {
       return segment.sprite;
-    });
+    }).reverse();
   }
 
   newRootSegment() {
@@ -92,13 +98,35 @@ class Creature {
 
     let rootSegment = {
       type: 'root',
-      position: creature.currentPosition,
-      direction: creature.direction,
-      update: function() {
-        this.position = creature.currentPosition;
-        this.direction = creature.direction;
-        console.log('new position is', this.position);
+      child: null,
+      position: {
+        x: this.currentPosition.x,
+        y: this.currentPosition.y
       },
+      direction: {
+        x: 0,
+        y: 0
+      },
+      update: function() {
+        this.updatePosition();
+      },
+      childPendingMoves: [],
+      pendChildDirectionChange: function(direction) {
+        if(this.child) {
+          this.childPendingMoves.push({
+            direction: direction,
+            distance: 0
+          });
+        }
+      },
+      changeDirection: function(direction) {
+        this.direction = direction;
+        this.pendChildDirectionChange(direction);
+        // console.log('new direction is', this.direction);
+      },
+      updatePosition: function() {
+        this.position = moveDirection(this.position, this.direction);
+      }
     };
 
     rootSegment.sprite = new Sprite({
@@ -108,26 +136,57 @@ class Creature {
       position: function() {
         return this.parent.position;
       },
-      color: creature.color
+      color: {r: 0, g: 0, b: 0}
     });
 
     return rootSegment;
   }
 
-  newChildSegment({parent}) {
+  newChildSegment({parent, colorModifier = 0}) {
     let creature = this;
+
     let segment = {
       type: 'child',
       parent: parent,
-      direction: parent.direction,
-      position: {},
+      childPendingMoves: [],
+      pendChildDirectionChange: function(direction) {
+        if(this.child) {
+          this.childPendingMoves.push({
+            direction: direction,
+            distance: 0
+          });
+        }
+      },
+      changeDirection: function(direction) {
+        this.direction = direction;
+        this.pendChildDirectionChange(direction);
+      },
+      checkForMoves: function() {
+        let segment = this;
+        this.parent.childPendingMoves.forEach(function(move, index) {
+          if(move.distance >= creature.segmentDistance) {
+            segment.changeDirection(move.direction);
+
+            segment.parent.childPendingMoves.splice(index, 1);
+          } else {
+            move.distance++;
+          }
+        });
+      },
+      direction: {x: 0,  y: 0},
+      position: {
+        x: parent.position.x,
+        y: parent.position.y
+      },
       update: function() {
+        this.checkForMoves();
         this.updatePosition();
       },
       updatePosition: function() {
-        this.position = moveDirection(parent.position, this.direction);
+        this.position = moveDirection(this.position, this.direction) ;
       }
     };
+
     segment.sprite = new Sprite({
       type: 'circle',
       parent: segment,
@@ -135,22 +194,32 @@ class Creature {
       position: function() {
         return this.parent.position;
       },
-      color: creature.color,
+      color: {
+        r: creature.color.r,
+        g: creature.color.g,
+        b: creature.color.b
+      },
+      opacity: 1-colorModifier/2
     });
+
+    parent.child = segment;
+
     return segment;
   }
 
   generateInitialSegments() {
     let creature = this;
-    let initialAngle = 90;
+    let initialAngle = 0;
 
     let rootSegment = this.newRootSegment();
     this.rootSegment = rootSegment;
+
     let segments = [rootSegment];
 
     for(let idx = 1; idx < this.length; idx++) {
       let childSegment = this.newChildSegment({
-        parent: segments[segments.length-1]
+        parent: segments[segments.length-1],
+        colorModifier: idx/this.length
       });
       childSegment.update();
       segments.push(childSegment);

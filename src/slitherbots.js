@@ -11,7 +11,7 @@ let canvasCenter = () => {
 
 let slitherbot = new Creature({
   position: canvasCenter(),
-  length: 50,
+  length: 20,
   direction: 1,
   autonomous: true,
   thinkInterval: 10
@@ -19,7 +19,7 @@ let slitherbot = new Creature({
 
 let slitherbot2 = new Creature({
   position: canvasCenter(),
-  length: 10,
+  length: 5,
   direction: 1,
   color: {r: 255, g:0, b:255}
 });
@@ -38,7 +38,7 @@ window.setInterval( () => {
    }
   count++;
   window.requestAnimationFrame(game.engine.render.update);
-}, 50);
+}, 20);
 
 /*
 var ctx = c.getContext("2d");
