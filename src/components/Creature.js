@@ -53,6 +53,7 @@ class Creature {
     if(this.autonomous) {
       this.think();
     }
+    this.currentPosition = moveDirection(this.currentPosition, this.direction);
     this.segments.forEach((segment) => {
       segment.update();
     });
@@ -88,22 +89,35 @@ class Creature {
 
   newRootSegment() {
     let creature = this;
-    return {
+
+    let rootSegment = {
+      type: 'root',
       position: creature.currentPosition,
       direction: creature.direction,
-      update: function() {},
-      sprite: new Sprite({
-        type: 'circle',
-        radius: this.radius(),
-        position: this.position,
-        color: this.color
-      })
+      update: function() {
+        this.position = creature.currentPosition;
+        this.direction = creature.direction;
+        console.log('new position is', this.position);
+      },
     };
+
+    rootSegment.sprite = new Sprite({
+      type: 'circle',
+      parent: rootSegment,
+      radius: creature.radius(),
+      position: function() {
+        return this.parent.position;
+      },
+      color: creature.color
+    });
+
+    return rootSegment;
   }
 
   newChildSegment({parent}) {
     let creature = this;
-    return {
+    let segment = {
+      type: 'child',
       parent: parent,
       direction: parent.direction,
       position: {},
@@ -112,14 +126,18 @@ class Creature {
       },
       updatePosition: function() {
         this.position = moveDirection(parent.position, this.direction);
-      },
-      sprite: new Sprite({
-        type: 'circle',
-        radius: creature.radius(),
-        position: this.position,
-        color: creature.color,
-      })
+      }
     };
+    segment.sprite = new Sprite({
+      type: 'circle',
+      parent: segment,
+      radius: creature.radius(),
+      position: function() {
+        return this.parent.position;
+      },
+      color: creature.color,
+    });
+    return segment;
   }
 
   generateInitialSegments() {
@@ -127,9 +145,10 @@ class Creature {
     let initialAngle = 90;
 
     let rootSegment = this.newRootSegment();
+    this.rootSegment = rootSegment;
     let segments = [rootSegment];
 
-    for(let idx = 1; idx < this.length; i++) {
+    for(let idx = 1; idx < this.length; idx++) {
       let childSegment = this.newChildSegment({
         parent: segments[segments.length-1]
       });

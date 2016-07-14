@@ -69,6 +69,7 @@ var Creature = function () {
       if (this.autonomous) {
         this.think();
       }
+      this.currentPosition = moveDirection(this.currentPosition, this.direction);
       this.segments.forEach(function (segment) {
         segment.update();
       });
@@ -108,17 +109,29 @@ var Creature = function () {
     key: "newRootSegment",
     value: function newRootSegment() {
       var creature = this;
-      return {
+
+      var rootSegment = {
+        type: 'root',
         position: creature.currentPosition,
         direction: creature.direction,
-        update: function update() {},
-        sprite: new Sprite({
-          type: 'circle',
-          radius: this.radius(),
-          position: this.position,
-          color: this.color
-        })
+        update: function update() {
+          this.position = creature.currentPosition;
+          this.direction = creature.direction;
+          console.log('new position is', this.position);
+        }
       };
+
+      rootSegment.sprite = new Sprite({
+        type: 'circle',
+        parent: rootSegment,
+        radius: creature.radius(),
+        position: function position() {
+          return this.parent.position;
+        },
+        color: creature.color
+      });
+
+      return rootSegment;
     }
   }, {
     key: "newChildSegment",
@@ -126,7 +139,8 @@ var Creature = function () {
       var parent = _ref3.parent;
 
       var creature = this;
-      return {
+      var segment = {
+        type: 'child',
         parent: parent,
         direction: parent.direction,
         position: {},
@@ -135,14 +149,18 @@ var Creature = function () {
         },
         updatePosition: function updatePosition() {
           this.position = moveDirection(parent.position, this.direction);
-        },
-        sprite: new Sprite({
-          type: 'circle',
-          radius: creature.radius(),
-          position: this.position,
-          color: creature.color
-        })
+        }
       };
+      segment.sprite = new Sprite({
+        type: 'circle',
+        parent: segment,
+        radius: creature.radius(),
+        position: function position() {
+          return this.parent.position;
+        },
+        color: creature.color
+      });
+      return segment;
     }
   }, {
     key: "generateInitialSegments",
@@ -151,9 +169,10 @@ var Creature = function () {
       var initialAngle = 90;
 
       var rootSegment = this.newRootSegment();
+      this.rootSegment = rootSegment;
       var segments = [rootSegment];
 
-      for (var idx = 1; idx < this.length; i++) {
+      for (var idx = 1; idx < this.length; idx++) {
         var childSegment = this.newChildSegment({
           parent: segments[segments.length - 1]
         });
@@ -259,10 +278,12 @@ var Sprite = function () {
     var opacity = _ref5$opacity === undefined ? 1 : _ref5$opacity;
     var _ref5$radius = _ref5.radius;
     var radius = _ref5$radius === undefined ? 40 : _ref5$radius;
+    var parent = _ref5.parent;
 
     _classCallCheck(this, Sprite);
 
     this.type = type;
+    this.parent = parent;
     this.position = position;
     this.color = color;
     this.opacity = opacity;
@@ -278,7 +299,10 @@ var Sprite = function () {
     key: "drawCircle",
     value: function drawCircle(ctx) {
       ctx.fillStyle = this.rgbaValue();
-      ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
+      if (!this.position) {
+        console.log(this);
+      }
+      ctx.arc(this.position().x, this.position().y, this.radius, 0, 2 * Math.PI);
       ctx.fill();
     }
   }, {
@@ -337,7 +361,7 @@ window.setInterval(function () {
   }
   count++;
   window.requestAnimationFrame(game.engine.render.update);
-}, 17);
+}, 50);
 
 /*
 var ctx = c.getContext("2d");

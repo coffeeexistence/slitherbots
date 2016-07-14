@@ -38,7 +38,7 @@ window.setInterval( () => {
    }
   count++;
   window.requestAnimationFrame(game.engine.render.update);
-}, 17);
+}, 50);
 
 /*
 var ctx = c.getContext("2d");
