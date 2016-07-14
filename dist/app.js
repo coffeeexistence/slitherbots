@@ -11,68 +11,34 @@ var game = {};
   var colorModifier = _ref$colorModifier === undefined ? 0 : _ref$colorModifier;
   var creature = _ref.creature;
 
-  var segment = {
-    type: 'child',
-    parent: parent,
-    childPendingMoves: [],
-    pendChildDirectionChange: function pendChildDirectionChange(direction) {
-      if (this.child) {
-        this.childPendingMoves.push({
-          direction: direction,
-          distance: 0
-        });
+  var startPosition = { x: parent.position.x, y: parent.position.y };
+  var segment = segmentFactory({ startPosition: startPosition, creature: creature });
+
+  segment.type = 'child';
+  segment.parent = parent;
+  segment.checkForMoves = function () {
+    segment.parent.childPendingMoves.forEach(function (move, index) {
+      if (move.distance >= creature.segmentDistance) {
+        segment.changeDirection(move.direction);
+
+        segment.parent.childPendingMoves.splice(index, 1);
+      } else {
+        move.distance++;
       }
-    },
-    changeDirection: function changeDirection(direction) {
-      this.direction = direction;
-      this.pendChildDirectionChange(direction);
-    },
-    checkForMoves: function checkForMoves() {
-      var segment = this;
-      this.parent.childPendingMoves.forEach(function (move, index) {
-        if (move.distance >= creature.segmentDistance) {
-          segment.changeDirection(move.direction);
-
-          segment.parent.childPendingMoves.splice(index, 1);
-        } else {
-          move.distance++;
-        }
-      });
-    },
-    direction: { x: 0, y: 0 },
-    position: {
-      x: parent.position.x,
-      y: parent.position.y
-    },
-    update: function update() {
-      this.checkForMoves();
-      this.updatePosition();
-    },
-    updatePosition: function updatePosition() {
-      this.position = moveDirection(this.position, this.direction);
-    }
+    });
   };
+  segment.direction = { x: 0, y: 0 };
 
-  segment.sprite = new Sprite({
-    type: 'circle',
-    parent: segment,
-    radius: creature.radius(),
-    position: function position() {
-      return this.parent.position;
-    },
-    color: {
-      r: creature.color.r,
-      g: creature.color.g,
-      b: creature.color.b
-    },
-    opacity: 1 - colorModifier / 2
-  });
+  segment.update = function () {
+    this.checkForMoves();
+    this.updatePosition();
+  };
 
   parent.child = segment;
 
   return segment;
 }
-;var angleToDirection = function angleToDirection(_ref2) {
+;function angleToDirection(_ref2) {
   var angle = _ref2.angle;
   var distance = _ref2.distance;
 
@@ -82,21 +48,21 @@ var game = {};
     x: distance * Math.cos(direction),
     y: distance * Math.sin(direction)
   };
-};
+}
 
-var moveDirection = function moveDirection(start, movement) {
+function moveDirection(start, movement) {
   return {
     x: start.x + movement.x,
     y: start.y + movement.y
   };
-};
+}
 
-var invertDirection = function invertDirection(direction) {
+function invertDirection(direction) {
   return {
     x: direction.x * -1,
     y: direction.y * -1
   };
-};
+}
 
 var Creature = function () {
   function Creature(_ref3) {
@@ -190,6 +156,8 @@ var Creature = function () {
       });
       this.rootSegment = rootSegment;
 
+      console.log('root segment created');
+
       var segments = [rootSegment];
 
       for (var idx = 1; idx < this.length; idx++) {
@@ -199,8 +167,11 @@ var Creature = function () {
           colorModifier: idx / this.length
         });
         childSegment.update();
+        console.log('updated child segment');
         segments.push(childSegment);
       }
+
+      console.log('initial segments generated');
 
       return segments;
     }
@@ -213,56 +184,62 @@ var Creature = function () {
   var startPosition = _ref4.startPosition;
   var creature = _ref4.creature;
 
-  var rootSegment = {
-    type: 'root',
-    child: null,
-    position: {
-      x: startPosition.x,
-      y: startPosition.y
-    },
-    direction: {
-      x: 0,
-      y: 0
-    },
-    update: function update() {
-      this.updatePosition();
-    },
+  var rootSegment = segmentFactory({ startPosition: startPosition, creature: creature });
+
+  rootSegment.type = 'root';
+  rootSegment.child = null;
+  rootSegment.direction = { x: 0, y: 0 };
+  rootSegment.update = function () {
+    rootSegment.updatePosition();
+  };
+
+  return rootSegment;
+}
+;function segmentFactory(_ref5) {
+  var creature = _ref5.creature;
+  var startPosition = _ref5.startPosition;
+
+  var segment = {
+    creature: creature,
     childPendingMoves: [],
-    pendChildDirectionChange: function pendChildDirectionChange(direction) {
-      if (this.child) {
-        this.childPendingMoves.push({
-          direction: direction,
-          distance: 0
-        });
-      }
-    },
-    changeDirection: function changeDirection(direction) {
-      this.direction = direction;
-      this.pendChildDirectionChange(direction);
-      // console.log('new direction is', this.direction);
-    },
-    updatePosition: function updatePosition() {
-      this.position = moveDirection(this.position, this.direction);
+    position: startPosition
+  };
+
+  segment.pendChildDirectionChange = function (direction) {
+    if (segment.child) {
+      segment.childPendingMoves.push({
+        direction: direction,
+        distance: 0
+      });
     }
   };
 
-  rootSegment.sprite = new Sprite({
+  segment.changeDirection = function (direction) {
+    segment.direction = direction;
+    segment.pendChildDirectionChange(direction);
+    // console.log('new direction is', this.direction);
+  };
+  segment.updatePosition = function () {
+    segment.position = moveDirection(segment.position, segment.direction);
+  };
+
+  segment.sprite = new Sprite({
     type: 'circle',
-    parent: rootSegment,
-    radius: creature.radius(),
+    parent: segment,
+    radius: segment.creature.radius(),
     position: function position() {
-      return this.parent.position;
+      return segment.position;
     },
-    color: { r: 100, g: 100, b: 100 }
+    color: { r: creature.color.r, g: creature.color.g, b: creature.color.b }
   });
 
-  return rootSegment;
+  return segment;
 }
 ;var engineService = function engineService() {
   var engine = {};
 
-  engine.initialize = function (_ref5) {
-    var canvas = _ref5.canvas;
+  engine.initialize = function (_ref6) {
+    var canvas = _ref6.canvas;
 
     engine.canvas = canvas;
   };
@@ -340,16 +317,16 @@ var Creature = function () {
 game.engine = engineService();
 ;
 var Sprite = function () {
-  function Sprite(_ref6) {
-    var type = _ref6.type;
-    var position = _ref6.position;
-    var _ref6$color = _ref6.color;
-    var color = _ref6$color === undefined ? { r: 255, g: 0, b: 0 } : _ref6$color;
-    var _ref6$opacity = _ref6.opacity;
-    var opacity = _ref6$opacity === undefined ? 1 : _ref6$opacity;
-    var _ref6$radius = _ref6.radius;
-    var radius = _ref6$radius === undefined ? 40 : _ref6$radius;
-    var parent = _ref6.parent;
+  function Sprite(_ref7) {
+    var type = _ref7.type;
+    var position = _ref7.position;
+    var _ref7$color = _ref7.color;
+    var color = _ref7$color === undefined ? { r: 255, g: 0, b: 0 } : _ref7$color;
+    var _ref7$opacity = _ref7.opacity;
+    var opacity = _ref7$opacity === undefined ? 1 : _ref7$opacity;
+    var _ref7$radius = _ref7.radius;
+    var radius = _ref7$radius === undefined ? 40 : _ref7$radius;
+    var parent = _ref7.parent;
 
     _classCallCheck(this, Sprite);
 
@@ -422,7 +399,7 @@ var slitherbot = new Creature({
 
 var slitherbot2 = new Creature({
   position: canvasCenter(),
-  length: 5,
+  length: 15,
   direction: 1,
   color: { r: 255, g: 0, b: 255 }
 });
@@ -432,10 +409,13 @@ game.engine.render.addEntity(slitherbot2);
 
 var count = 0;
 var direction = 1;
+var variability = 100;
 
 window.setInterval(function () {
   if (count % 10 === 0) {
-    direction += 20;
+
+    var variation = parseInt(Math.random() * variability) - variability / 2;
+    direction += 20 + variation;
     slitherbot2.updateDirection(direction);
   }
   count++;

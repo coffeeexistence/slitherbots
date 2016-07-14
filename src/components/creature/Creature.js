@@ -1,25 +1,25 @@
-let angleToDirection = ({angle, distance}) => {
+function angleToDirection ({angle, distance}) {
   let direction = ((angle/360) * Math.PI) - Math.PI/2;
   // console.log(direction);
   return {
     x: (distance * Math.cos(direction)),
     y: (distance * Math.sin(direction))
   };
-};
+}
 
-let moveDirection = (start, movement) => {
+function moveDirection (start, movement) {
   return {
     x: start.x + movement.x,
     y: start.y + movement.y
   };
-};
+}
 
-let invertDirection = (direction) => {
+function invertDirection (direction) {
   return {
     x: direction.x * -1,
     y: direction.y * -1
   };
-};
+}
 
 
 class Creature {
@@ -103,6 +103,8 @@ class Creature {
     });
     this.rootSegment = rootSegment;
 
+    console.log('root segment created');
+
     let segments = [rootSegment];
 
     for(let idx = 1; idx < this.length; idx++) {
@@ -112,8 +114,11 @@ class Creature {
         colorModifier: idx/this.length
       });
       childSegment.update();
+      console.log('updated child segment');
       segments.push(childSegment);
     }
+
+    console.log('initial segments generated');
 
     return segments;
   }

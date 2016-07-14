@@ -19,7 +19,7 @@ let slitherbot = new Creature({
 
 let slitherbot2 = new Creature({
   position: canvasCenter(),
-  length: 5,
+  length: 15,
   direction: 1,
   color: {r: 255, g:0, b:255}
 });
@@ -30,10 +30,13 @@ game.engine.render.addEntity(slitherbot2);
 
 let count = 0;
 let direction = 1;
+let variability = 100;
 
 window.setInterval( () => {
   if(count%10===0) {
-    direction+=20;
+
+    let variation = parseInt(Math.random()*variability)-(variability/2);
+    direction+=(20 + variation);
     slitherbot2.updateDirection(direction);
    }
   count++;
