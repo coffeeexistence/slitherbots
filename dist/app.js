@@ -17,6 +17,13 @@ var game = {};
   };
 };
 
+var moveDirection = function moveDirection(start, movement) {
+  return {
+    x: start.x + movement.x,
+    y: start.y + movement.y
+  };
+};
+
 var Creature = function () {
   function Creature(_ref2) {
     var _ref2$position = _ref2.position;
@@ -37,6 +44,8 @@ var Creature = function () {
     this.currentPosition = position;
     this.segmentPositions = [position];
 
+    this.segmentDistance = 5;
+
     this.color = color;
 
     this.stepDistance = 1;
@@ -50,6 +59,8 @@ var Creature = function () {
       this.brain.thinkInterval = thinkInterval;
       this.brain.thinkStep = 0;
     }
+
+    this.segments = this.generateInitialSegments();
   }
 
   _createClass(Creature, [{
@@ -58,14 +69,9 @@ var Creature = function () {
       if (this.autonomous) {
         this.think();
       }
-      var newSegmentPosition = {
-        x: this.currentPosition.x += this.direction.x,
-        y: this.currentPosition.y += this.direction.y
-      };
-      this.segmentPositions.unshift(newSegmentPosition);
-      if (this.segmentPositions.length > this.length) {
-        this.segmentPositions.pop();
-      }
+      this.segments.forEach(function (segment) {
+        segment.update();
+      });
     }
   }, {
     key: "updateDirection",
@@ -94,30 +100,68 @@ var Creature = function () {
   }, {
     key: "sprites",
     value: function sprites() {
-      return this.segments();
-    }
-  }, {
-    key: "segment",
-    value: function segment(position) {
-      var opacity = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
-
-      return new Sprite({
-        type: 'circle',
-        radius: this.radius(),
-        position: { x: position.x, y: position.y },
-        color: this.color,
-        opacity: opacity
+      return this.segments.map(function (segment) {
+        return segment.sprite;
       });
     }
   }, {
-    key: "segments",
-    value: function segments() {
+    key: "newRootSegment",
+    value: function newRootSegment() {
       var creature = this;
-      var length = this.length;
-      return this.segmentPositions.map(function (position, index) {
-        var segmentOpacity = (length - index) / length;
-        return creature.segment(position, segmentOpacity);
-      });
+      return {
+        position: creature.currentPosition,
+        direction: creature.direction,
+        update: function update() {},
+        sprite: new Sprite({
+          type: 'circle',
+          radius: this.radius(),
+          position: this.position,
+          color: this.color
+        })
+      };
+    }
+  }, {
+    key: "newChildSegment",
+    value: function newChildSegment(_ref3) {
+      var parent = _ref3.parent;
+
+      var creature = this;
+      return {
+        parent: parent,
+        direction: parent.direction,
+        position: {},
+        update: function update() {
+          this.updatePosition();
+        },
+        updatePosition: function updatePosition() {
+          this.position = moveDirection(parent.position, this.direction);
+        },
+        sprite: new Sprite({
+          type: 'circle',
+          radius: creature.radius(),
+          position: this.position,
+          color: creature.color
+        })
+      };
+    }
+  }, {
+    key: "generateInitialSegments",
+    value: function generateInitialSegments() {
+      var creature = this;
+      var initialAngle = 90;
+
+      var rootSegment = this.newRootSegment();
+      var segments = [rootSegment];
+
+      for (var idx = 1; idx < this.length; i++) {
+        var childSegment = this.newChildSegment({
+          parent: segments[segments.length - 1]
+        });
+        childSegment.update();
+        segments.push(childSegment);
+      }
+
+      return segments;
     }
   }]);
 
@@ -127,8 +171,8 @@ var Creature = function () {
 ;var engineService = function engineService() {
   var engine = {};
 
-  engine.initialize = function (_ref3) {
-    var canvas = _ref3.canvas;
+  engine.initialize = function (_ref4) {
+    var canvas = _ref4.canvas;
 
     engine.canvas = canvas;
   };
@@ -206,15 +250,15 @@ var Creature = function () {
 game.engine = engineService();
 ;
 var Sprite = function () {
-  function Sprite(_ref4) {
-    var type = _ref4.type;
-    var position = _ref4.position;
-    var _ref4$color = _ref4.color;
-    var color = _ref4$color === undefined ? { r: 255, g: 0, b: 0 } : _ref4$color;
-    var _ref4$opacity = _ref4.opacity;
-    var opacity = _ref4$opacity === undefined ? 1 : _ref4$opacity;
-    var _ref4$radius = _ref4.radius;
-    var radius = _ref4$radius === undefined ? 40 : _ref4$radius;
+  function Sprite(_ref5) {
+    var type = _ref5.type;
+    var position = _ref5.position;
+    var _ref5$color = _ref5.color;
+    var color = _ref5$color === undefined ? { r: 255, g: 0, b: 0 } : _ref5$color;
+    var _ref5$opacity = _ref5.opacity;
+    var opacity = _ref5$opacity === undefined ? 1 : _ref5$opacity;
+    var _ref5$radius = _ref5.radius;
+    var radius = _ref5$radius === undefined ? 40 : _ref5$radius;
 
     _classCallCheck(this, Sprite);
 

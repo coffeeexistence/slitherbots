@@ -7,6 +7,13 @@ let angleToDirection = ({angle, distance}) => {
   };
 };
 
+let moveDirection = (start, movement) => {
+  return {
+    x: start.x + movement.x,
+    y: start.y + movement.y
+  };
+};
+
 
 class Creature {
   constructor({
@@ -22,6 +29,8 @@ class Creature {
     this.currentPosition = position;
     this.segmentPositions = [position];
 
+    this.segmentDistance = 5;
+
     this.color = color;
 
     this.stepDistance = 1;
@@ -36,20 +45,17 @@ class Creature {
       this.brain.thinkStep = 0;
     }
 
+    this.segments = this.generateInitialSegments();
+
   }
 
   move() {
     if(this.autonomous) {
       this.think();
     }
-    let newSegmentPosition = {
-      x: (this.currentPosition.x += this.direction.x),
-      y: (this.currentPosition.y += this.direction.y),
-    };
-    this.segmentPositions.unshift(newSegmentPosition);
-    if(this.segmentPositions.length > this.length) {
-      this.segmentPositions.pop();
-    }
+    this.segments.forEach((segment) => {
+      segment.update();
+    });
   }
 
   updateDirection(angle) {
@@ -75,26 +81,63 @@ class Creature {
   }
 
   sprites() {
-    return this.segments();
-  }
-
-  segment(position, opacity=1) {
-    return new Sprite({
-      type: 'circle',
-      radius: this.radius(),
-      position: {x: position.x, y: position.y},
-      color: this.color,
-      opacity: opacity
+    return this.segments.map((segment) => {
+      return segment.sprite;
     });
   }
 
-  segments() {
+  newRootSegment() {
     let creature = this;
-    let length = this.length;
-    return this.segmentPositions.map(function(position, index){
-      let segmentOpacity = (length-index)/length;
-      return creature.segment(position, segmentOpacity);
-    });
+    return {
+      position: creature.currentPosition,
+      direction: creature.direction,
+      update: function() {},
+      sprite: new Sprite({
+        type: 'circle',
+        radius: this.radius(),
+        position: this.position,
+        color: this.color
+      })
+    };
+  }
+
+  newChildSegment({parent}) {
+    let creature = this;
+    return {
+      parent: parent,
+      direction: parent.direction,
+      position: {},
+      update: function() {
+        this.updatePosition();
+      },
+      updatePosition: function() {
+        this.position = moveDirection(parent.position, this.direction);
+      },
+      sprite: new Sprite({
+        type: 'circle',
+        radius: creature.radius(),
+        position: this.position,
+        color: creature.color,
+      })
+    };
+  }
+
+  generateInitialSegments() {
+    let creature = this;
+    let initialAngle = 90;
+
+    let rootSegment = this.newRootSegment();
+    let segments = [rootSegment];
+
+    for(let idx = 1; idx < this.length; i++) {
+      let childSegment = this.newChildSegment({
+        parent: segments[segments.length-1]
+      });
+      childSegment.update();
+      segments.push(childSegment);
+    }
+
+    return segments;
   }
 
 
