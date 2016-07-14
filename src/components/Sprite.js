@@ -8,15 +8,23 @@ class Sprite {
     this.radius = radius;
   }
 
-  rgbaValue() {
-    return `rgba(${this.color.r}, ${this.color.g}, ${this.color.b},  ${this.opacity})`;
+  rgbaValue(color, opacity) {
+    return `rgba(${color.r}, ${color.g}, ${color.b},  ${opacity})`;
   }
 
   drawCircle(ctx) {
-    ctx.fillStyle = this.rgbaValue();
+    ctx.fillStyle = this.rgbaValue(this.color, 1);
     if(!this.position) {console.log(this);}
     ctx.arc(this.position().x, this.position().y, this.radius, 0, 2*Math.PI);
     ctx.fill();
+    ctx.lineWidth = 1;
+    let strokeColor = this.rgbaValue({
+      r: parseInt(this.color.r/3),
+      g: parseInt(this.color.g/3),
+      b: parseInt(this.color.b/3)
+    }, 1);
+    ctx.strokeStyle = strokeColor;
+    ctx.stroke();
   }
 
   draw(ctx) {
