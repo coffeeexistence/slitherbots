@@ -1,4 +1,6 @@
-function rootSegmentFactory({startPosition, creature}) {
+import segmentFactory from 'segmentFactory';
+
+export default function ({startPosition, creature}) {
   let rootSegment = segmentFactory({startPosition: startPosition, creature: creature});
 
   rootSegment.type = 'root';

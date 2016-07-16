@@ -1,4 +1,4 @@
-function segmentFactory({creature, startPosition}) {
+ export default function ({creature, startPosition}) {
   let segment = {
     creature: creature,
     childPendingMoves: [],

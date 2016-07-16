@@ -1,7 +1,8 @@
+import childSegmentFactory from 'childSegmentFactory';
+import rootSegmentFactory from 'rootSegmentFactory';
 
 
-
-class Creature {
+export default class {
   constructor({
     position={x:0, y:0},
     color={r:255, g:0, b:0},

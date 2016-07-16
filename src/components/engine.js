@@ -1,4 +1,4 @@
-let engineService = () => {
+export default function () {
   let engine = {};
 
   engine.initialize = ({canvas}) => {
@@ -80,5 +80,3 @@ let engineService = () => {
 
   return engine;
 };
-
-game.engine = engineService();
