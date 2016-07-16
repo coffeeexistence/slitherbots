@@ -14,7 +14,7 @@ let slitherbot = new Creature({
   length: 20,
   direction: 1,
   autonomous: true,
-  thinkInterval: 10
+  thinkInterval: 60
 });
 
 let slitherbot2 = new Creature({
@@ -32,16 +32,19 @@ let count = 0;
 let direction = 1;
 let variability = 100;
 
-window.setInterval( () => {
+let update = () => {
   if(count%10===0) {
-
     let variation = parseInt(Math.random()*variability)-(variability/2);
     direction+=(20 + variation);
     slitherbot2.updateDirection(direction);
    }
   count++;
-  window.requestAnimationFrame(game.engine.render.update);
-}, 20);
+  game.engine.render.update();
+};
+
+window.setInterval( () => {
+  window.requestAnimationFrame(update);
+}, 10);
 
 /*
 var ctx = c.getContext("2d");

@@ -84,7 +84,7 @@ var Creature = function () {
     this.currentPosition = position;
     this.segmentPositions = [position];
 
-    this.segmentDistance = 7;
+    this.segmentDistance = 9;
 
     this.color = color;
 
@@ -135,7 +135,7 @@ var Creature = function () {
   }, {
     key: 'radius',
     value: function radius() {
-      return 4 + this.length / 20;
+      return 8 + this.length / 20;
     }
   }, {
     key: 'sprites',
@@ -394,7 +394,7 @@ var slitherbot = new Creature({
   length: 20,
   direction: 1,
   autonomous: true,
-  thinkInterval: 10
+  thinkInterval: 60
 });
 
 var slitherbot2 = new Creature({
@@ -411,16 +411,19 @@ var count = 0;
 var direction = 1;
 var variability = 100;
 
-window.setInterval(function () {
+var update = function update() {
   if (count % 10 === 0) {
-
     var variation = parseInt(Math.random() * variability) - variability / 2;
     direction += 20 + variation;
     slitherbot2.updateDirection(direction);
   }
   count++;
-  window.requestAnimationFrame(game.engine.render.update);
-}, 20);
+  game.engine.render.update();
+};
+
+window.setInterval(function () {
+  window.requestAnimationFrame(update);
+}, 10);
 
 /*
 var ctx = c.getContext("2d");

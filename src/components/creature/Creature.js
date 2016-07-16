@@ -36,7 +36,7 @@ class Creature {
     this.currentPosition = position;
     this.segmentPositions = [position];
 
-    this.segmentDistance = 7;
+    this.segmentDistance = 9;
 
     this.color = color;
 
@@ -83,7 +83,7 @@ class Creature {
   }
 
   radius() {
-    return 4+(this.length/20);
+    return 8+(this.length/20);
   }
 
   sprites() {
