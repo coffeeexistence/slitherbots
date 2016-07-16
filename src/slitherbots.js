@@ -3,32 +3,45 @@ import Creature from './components/creature/Creature';
 
 var canvas = document.getElementById("slitherbots-canvas");
 
+canvas.width  = window.innerWidth*0.90;
+canvas.height = window.innerHeight*0.90;
+
 console.log(game);
 
-game.engine.initialize({canvas: canvas});
+game.engine.initialize({canvas: canvas, drawInterval: 6, showFps: false});
 game.engine.logCanvas();
 
 let canvasCenter = () => {
   return {x: canvas.width/2, y: canvas.height/2};
 };
 
-let slitherbot = new Creature({
-  position: canvasCenter(),
-  length: 20,
-  direction: 1,
-  autonomous: true,
-  thinkInterval: 60
-});
+let addBots = (number) => {
+  for(let i = 0; i < number; i++) {
+    let rand1 = Math.random();
+    let rand2 = Math.random();
+    let rand3 = Math.random();
+
+    game.engine.render.addEntity(
+      new Creature({
+        position: canvasCenter(),
+        length: Math.floor(rand1*100),
+        direction: Math.floor(rand2*360),
+        autonomous: true,
+        thinkInterval: Math.floor(20+(rand3*50)),
+        color: {r: Math.floor(rand1*255), g: Math.floor(rand2*255), b: Math.floor(rand3*255)}
+      })
+    );
+  }
+};
+
+addBots(10);
 
 let slitherbot2 = new Creature({
   position: canvasCenter(),
   length: 15,
   direction: 1,
-  color: {r: 255, g:0, b:255}
+  color: {r: 255, g:100, b:255}
 });
-
-game.engine.render.addEntity(slitherbot);
-game.engine.render.addEntity(slitherbot2);
 
 
 let count = 0;
@@ -47,7 +60,7 @@ let update = () => {
 
 window.setInterval( () => {
   window.requestAnimationFrame(update);
-}, 10);
+}, 1);
 
 /*
 var ctx = c.getContext("2d");

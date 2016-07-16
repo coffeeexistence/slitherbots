@@ -1,8 +1,23 @@
 export default function () {
   let engine = {};
 
-  engine.initialize = ({canvas}) => {
+  engine.initialize = ({canvas, drawInterval=5, showFps=false}) => {
     engine.canvas = canvas;
+    engine.draw = {
+      interval: drawInterval,
+      nextInterval: function() {
+        this.iteration = 0;
+        this.intervalStart = new Date();
+      },
+      iteration: 0,
+      intervalStart: new Date(),
+      intervalTime: function() {
+        let timePerInterval = (new Date() - this.intervalStart);
+        let updatesPerSecond = this.interval * (1000/timePerInterval);
+        console.log("updates per second:", Math.ceil(updatesPerSecond));
+      }
+    };
+    engine.showFps = showFps;
   };
 
   engine.logCanvas = () => { console.log(engine.canvas); };
@@ -11,33 +26,28 @@ export default function () {
     let render = {};
 
 
+    let addSprites = (sprites, spriteArr) => {
 
-    let addSprite = (sprite, spriteMap) => {
-      if(!spriteMap.has(sprite.color)){
-        spriteMap.set(sprite.color, []);
-      }
-      spriteMap.get(sprite.color).push(sprite);
-    };
-
-    let addSprites = (sprites, spriteMap) => {
       sprites.forEach((sprite)=>{
-        addSprite(sprite, spriteMap);
+        spriteArr.push(sprite);
       });
     };
-
 
 
     let entities = {
       all: []
     };
 
-    entities.sprites = () => {
-      let spritesMap = new Map();
-      entities.all.forEach((entity) => {
-        addSprites(entity.sprites(), spritesMap);
-      });
-      // console.log(spritesMap.values());
-      return spritesMap;
+    entities.drawSprites = (ctx) => {
+      let drawEntity = (entity) => {
+        entity.sprites().forEach((sprite)=>{
+          ctx.beginPath();
+          sprite.draw(ctx);
+          ctx.closePath();
+        });
+      };
+
+      entities.all.forEach(drawEntity);
     };
 
     entities.update = () => {
@@ -49,29 +59,24 @@ export default function () {
     render.addEntity = (entity) => { entities.all.push(entity); };
 
 
-
-
     render.update = () => {
       entities.update();
-      let entitySpritesMap = entities.sprites();
 
-      let ctx = engine.canvas.getContext('2d');
 
-      ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+      if(engine.draw.iteration > engine.draw.interval-1) {
+        if(engine.showFps) engine.draw.intervalTime();
+        engine.draw.nextInterval();
 
-      let drawColorGroup = (sprites, color) => {
-        sprites.reverse();
-        sprites.forEach( (sprite) => {
-          ctx.beginPath();
-          sprite.draw(ctx);
-          ctx.closePath();
-        });
+        let ctx = engine.canvas.getContext('2d');
 
-      };
-      entitySpritesMap.forEach(drawColorGroup);
+        ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+
+        entities.drawSprites(ctx);
+
+      } else {
+        engine.draw.iteration++;
+      }
     };
-
-
 
     return render;
   };

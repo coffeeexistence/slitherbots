@@ -8,8 +8,27 @@
 
     engine.initialize = function (_ref) {
       var canvas = _ref.canvas;
+      var _ref$drawInterval = _ref.drawInterval;
+      var drawInterval = _ref$drawInterval === undefined ? 5 : _ref$drawInterval;
+      var _ref$showFps = _ref.showFps;
+      var showFps = _ref$showFps === undefined ? false : _ref$showFps;
 
       engine.canvas = canvas;
+      engine.draw = {
+        interval: drawInterval,
+        nextInterval: function nextInterval() {
+          this.iteration = 0;
+          this.intervalStart = new Date();
+        },
+        iteration: 0,
+        intervalStart: new Date(),
+        intervalTime: function intervalTime() {
+          var timePerInterval = new Date() - this.intervalStart;
+          var updatesPerSecond = this.interval * (1000 / timePerInterval);
+          console.log("updates per second:", Math.ceil(updatesPerSecond));
+        }
+      };
+      engine.showFps = showFps;
     };
 
     engine.logCanvas = function () {
@@ -19,16 +38,10 @@
     var renderService = function renderService() {
       var render = {};
 
-      var addSprite = function addSprite(sprite, spriteMap) {
-        if (!spriteMap.has(sprite.color)) {
-          spriteMap.set(sprite.color, []);
-        }
-        spriteMap.get(sprite.color).push(sprite);
-      };
+      var addSprites = function addSprites(sprites, spriteArr) {
 
-      var addSprites = function addSprites(sprites, spriteMap) {
         sprites.forEach(function (sprite) {
-          addSprite(sprite, spriteMap);
+          spriteArr.push(sprite);
         });
       };
 
@@ -36,13 +49,16 @@
         all: []
       };
 
-      entities.sprites = function () {
-        var spritesMap = new Map();
-        entities.all.forEach(function (entity) {
-          addSprites(entity.sprites(), spritesMap);
-        });
-        // console.log(spritesMap.values());
-        return spritesMap;
+      entities.drawSprites = function (ctx) {
+        var drawEntity = function drawEntity(entity) {
+          entity.sprites().forEach(function (sprite) {
+            ctx.beginPath();
+            sprite.draw(ctx);
+            ctx.closePath();
+          });
+        };
+
+        entities.all.forEach(drawEntity);
       };
 
       entities.update = function () {
@@ -57,21 +73,19 @@
 
       render.update = function () {
         entities.update();
-        var entitySpritesMap = entities.sprites();
 
-        var ctx = engine.canvas.getContext('2d');
+        if (engine.draw.iteration > engine.draw.interval - 1) {
+          if (engine.showFps) engine.draw.intervalTime();
+          engine.draw.nextInterval();
 
-        ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+          var ctx = engine.canvas.getContext('2d');
 
-        var drawColorGroup = function drawColorGroup(sprites, color) {
-          sprites.reverse();
-          sprites.forEach(function (sprite) {
-            ctx.beginPath();
-            sprite.draw(ctx);
-            ctx.closePath();
-          });
-        };
-        entitySpritesMap.forEach(drawColorGroup);
+          ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+
+          entities.drawSprites(ctx);
+        } else {
+          engine.draw.iteration++;
+        }
       };
 
       return render;
@@ -408,32 +422,43 @@
 
   var canvas = document.getElementById("slitherbots-canvas");
 
+  canvas.width = window.innerWidth * 0.90;
+  canvas.height = window.innerHeight * 0.90;
+
   console.log(game);
 
-  game.engine.initialize({ canvas: canvas });
+  game.engine.initialize({ canvas: canvas, drawInterval: 6, showFps: false });
   game.engine.logCanvas();
 
   var canvasCenter = function canvasCenter() {
     return { x: canvas.width / 2, y: canvas.height / 2 };
   };
 
-  var slitherbot = new _class({
-    position: canvasCenter(),
-    length: 20,
-    direction: 1,
-    autonomous: true,
-    thinkInterval: 60
-  });
+  var addBots = function addBots(number) {
+    for (var i = 0; i < number; i++) {
+      var rand1 = Math.random();
+      var rand2 = Math.random();
+      var rand3 = Math.random();
+
+      game.engine.render.addEntity(new _class({
+        position: canvasCenter(),
+        length: Math.floor(rand1 * 100),
+        direction: Math.floor(rand2 * 360),
+        autonomous: true,
+        thinkInterval: Math.floor(20 + rand3 * 50),
+        color: { r: Math.floor(rand1 * 255), g: Math.floor(rand2 * 255), b: Math.floor(rand3 * 255) }
+      }));
+    }
+  };
+
+  addBots(10);
 
   var slitherbot2 = new _class({
     position: canvasCenter(),
     length: 15,
     direction: 1,
-    color: { r: 255, g: 0, b: 255 }
+    color: { r: 255, g: 100, b: 255 }
   });
-
-  game.engine.render.addEntity(slitherbot);
-  game.engine.render.addEntity(slitherbot2);
 
   var count = 0;
   var direction = 1;
@@ -451,7 +476,7 @@
 
   window.setInterval(function () {
     window.requestAnimationFrame(update);
-  }, 10);
+  }, 1);
 
   /*
   var ctx = c.getContext("2d");
