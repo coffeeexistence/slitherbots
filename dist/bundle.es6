@@ -1,9 +1,7 @@
-'use strict';
-
 (function () {
   'use strict';
 
-  function engineService() {
+  function engineService () {
     var engine = {};
 
     engine.initialize = function (_ref) {
@@ -90,7 +88,7 @@
 
   var game = gameFactory();
 
-  var classCallCheck = function classCallCheck(instance, Constructor) {
+  var classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
@@ -201,7 +199,7 @@
     };
   };
 
-  function segmentFactory(_ref) {
+  function segmentFactory (_ref) {
     var creature = _ref.creature;
     var startPosition = _ref.startPosition;
 
@@ -242,7 +240,7 @@
     return segment;
   }
 
-  function childSegmentFactory(_ref) {
+  function childSegmentFactory (_ref) {
     var parent = _ref.parent;
     var _ref$colorModifier = _ref.colorModifier;
     var colorModifier = _ref$colorModifier === undefined ? 0 : _ref$colorModifier;
@@ -276,7 +274,7 @@
     return segment;
   }
 
-  function rootSegmentFactory(_ref) {
+  function rootSegmentFactory (_ref) {
     var startPosition = _ref.startPosition;
     var creature = _ref.creature;
 
@@ -307,6 +305,7 @@
       var _ref$thinkInterval = _ref.thinkInterval;
       var thinkInterval = _ref$thinkInterval === undefined ? 100 : _ref$thinkInterval;
       classCallCheck(this, _class);
+
 
       this.currentPosition = position;
       this.segmentPositions = [position];
@@ -458,5 +457,5 @@
   ctx.fillStyle = "#FF0000";
   ctx.fillRect(0,0,150,75);
   */
-})();
-//# sourceMappingURL=app.js.map
+
+}());

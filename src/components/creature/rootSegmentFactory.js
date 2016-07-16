@@ -1,4 +1,4 @@
-import segmentFactory from 'segmentFactory';
+import segmentFactory from './segmentFactory';
 
 export default function ({startPosition, creature}) {
   let rootSegment = segmentFactory({startPosition: startPosition, creature: creature});

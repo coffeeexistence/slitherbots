@@ -1,4 +1,4 @@
-class Sprite {
+export default class {
   constructor({type, position, color={r: 255, g: 0, b: 0}, opacity=1, radius=40, parent}) {
     this.type = type;
     this.parent = parent;

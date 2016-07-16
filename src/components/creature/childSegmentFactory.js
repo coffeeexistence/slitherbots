@@ -1,4 +1,4 @@
-import segmentFactory from 'segmentFactory';
+import segmentFactory from './segmentFactory';
 
 export default function ({parent, colorModifier = 0, creature}) {
     let startPosition = {x: parent.position.x, y: parent.position.y};

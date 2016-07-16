@@ -1,3 +1,6 @@
+import Sprite from '../Sprite';
+import directionHelper from '../helpers/direction';
+
  export default function ({creature, startPosition}) {
   let segment = {
     creature: creature,
@@ -20,7 +23,7 @@
     // console.log('new direction is', this.direction);
   };
   segment.updatePosition = function() {
-    segment.position = moveDirection(segment.position, segment.direction);
+    segment.position = directionHelper.move(segment.position, segment.direction);
   };
 
   segment.sprite = new Sprite({

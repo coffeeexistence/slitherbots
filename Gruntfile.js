@@ -14,6 +14,23 @@ module.exports = function(grunt) {
       files: sourceFiles,
       options: {esversion: 6}
     },
+
+    "rollup": {
+      "options": {
+        "format": "iife",
+        "plugins": [
+          require("rollup-plugin-babel")({
+            "presets": ["es2015-rollup"]
+          })
+        ]
+      },
+      "dist": {
+        "files": {
+          "./dist/bundle.es6": ["./src/slitherbots.js"]
+        }
+      }
+    },
+
     babel: {
         options: {
             sourceMap: true,
@@ -21,15 +38,16 @@ module.exports = function(grunt) {
         },
         dist: {
             files: {
-                'dist/app.js': 'src/slitherbots.js'
+                'dist/app.js': './dist/bundle.es6'
             }
         }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-concat');
+  // grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-rollup');
 
-  grunt.registerTask('default', ['jshint', 'babel']);
+  grunt.registerTask('default', ['jshint', 'rollup', 'babel']);
 
 };

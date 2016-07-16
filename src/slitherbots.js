@@ -1,5 +1,5 @@
-import game from 'game';
-import Creature from 'components/creature/Creature';
+import game from './game';
+import Creature from './components/creature/Creature';
 
 var canvas = document.getElementById("slitherbots-canvas");
 

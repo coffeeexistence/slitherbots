@@ -1,5 +1,6 @@
-import childSegmentFactory from 'childSegmentFactory';
-import rootSegmentFactory from 'rootSegmentFactory';
+import childSegmentFactory from './childSegmentFactory';
+import rootSegmentFactory from './rootSegmentFactory';
+import directionHelper from '../helpers/direction';
 
 
 export default class {
@@ -22,7 +23,7 @@ export default class {
 
     this.stepDistance = 1;
     this.angle = direction;
-    this.direction = angleToDirection({angle: direction, distance: this.stepDistance});
+    this.direction = directionHelper.angleToDirection({angle: direction, distance: this.stepDistance});
 
     this.length = length;
 
@@ -47,7 +48,7 @@ export default class {
 
   updateDirection(angle) {
     this.currentAngle = angle;
-    let newDirection = angleToDirection({angle: angle, distance: this.stepDistance});
+    let newDirection = directionHelper.angleToDirection({angle: angle, distance: this.stepDistance});
     this.rootSegment.changeDirection(newDirection);
   }
 
