@@ -13,20 +13,7 @@ module.exports = function(grunt) {
     jshint: {
       files: sourceFiles,
       options: {esversion: 6}
-    },
-    concat: {
-      options: {
-        separator: ';',
-      },
-      dist: {
-        src: sourceFiles,
-        dest: 'build/app.es6.js',
-      },
-    },
-    watch: {
-      files: ['<%= jshint.files %>'],
-      tasks: ['jshint']
-    },
+    }
     babel: {
         options: {
             sourceMap: true,
@@ -34,7 +21,7 @@ module.exports = function(grunt) {
         },
         dist: {
             files: {
-                'dist/app.js': 'build/app.es6.js'
+                'dist/app.js': 'src/slitherbots.js'
             }
         }
     }
@@ -44,6 +31,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['jshint', 'concat', 'babel']);
+  grunt.registerTask('default', ['jshint', 'babel']);
 
 };
