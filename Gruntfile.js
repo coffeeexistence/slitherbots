@@ -13,7 +13,7 @@ module.exports = function(grunt) {
     jshint: {
       files: sourceFiles,
       options: {esversion: 6}
-    }
+    },
     babel: {
         options: {
             sourceMap: true,
@@ -29,7 +29,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('default', ['jshint', 'babel']);
 

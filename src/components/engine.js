@@ -79,4 +79,4 @@ export default function () {
   engine.render = renderService();
 
   return engine;
-};
+}
