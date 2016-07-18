@@ -27,8 +27,7 @@ let addBots = (number) => {
         length: Math.floor(rand1*100),
         direction: Math.floor(rand2*360),
         autonomous: true,
-        thinkInterval: Math.floor(20+(rand3*50)),
-        color: {r: Math.floor(rand1*255), g: Math.floor(rand2*255), b: Math.floor(rand3*255)}
+        thinkInterval: Math.floor(20+(rand3*50))
       })
     );
   }

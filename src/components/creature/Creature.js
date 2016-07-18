@@ -1,12 +1,13 @@
 import childSegmentFactory from './childSegmentFactory';
 import rootSegmentFactory from './rootSegmentFactory';
 import directionHelper from '../helpers/direction';
+import colorHelper from '../helpers/color';
 
 
 export default class {
   constructor({
     position={x:0, y:0},
-    color={r:255, g:0, b:0},
+    color=colorHelper.pastel.random(),
     length=10,
     direction=0,
     autonomous=false,

@@ -8,6 +8,14 @@ export default class {
     this.radius = radius;
   }
 
+  info() {
+    return {
+      type: 'circle',
+      position: this.position,
+      radius: this.radius
+    };
+  }
+
   rgbaValue(color, opacity) {
     return `rgba(${color.r}, ${color.g}, ${color.b},  ${opacity})`;
   }

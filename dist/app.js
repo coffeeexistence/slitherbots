@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 (function () {
   'use strict';
 
@@ -104,6 +106,12 @@
 
   var game = gameFactory();
 
+  var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+    return typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+  };
+
   var classCallCheck = function classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -150,6 +158,15 @@
     }
 
     createClass(_class, [{
+      key: 'info',
+      value: function info() {
+        return {
+          type: 'circle',
+          position: this.position,
+          radius: this.radius
+        };
+      }
+    }, {
       key: 'rgbaValue',
       value: function rgbaValue(color, opacity) {
         return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',  ' + opacity + ')';
@@ -306,12 +323,58 @@
     return rootSegment;
   }
 
+  function randomFromRange(min, max) {
+    var variability = max - min + 1;
+    var valueToAdd = Math.floor(Math.random() * variability);
+    return min + valueToAdd;
+  }
+
+  // ----------------------------
+
+  var colorHelper = {};
+
+  colorHelper.hsv_to_rgb = function (h, s, v) {
+    // borrowed from colorsys
+    var RGB_MAX = 255;
+    var HUE_MAX = 360;
+    var SV_MAX = 100;
+    if ((typeof h === 'undefined' ? 'undefined' : _typeof(h)) === 'object') {
+      var args = h;
+      h = args.h;s = args.s;v = args.v;
+    }
+
+    h = h === HUE_MAX ? 1 : h % HUE_MAX / parseFloat(HUE_MAX) * 6;
+    s = s === SV_MAX ? 1 : s % SV_MAX / parseFloat(SV_MAX);
+    v = v === SV_MAX ? 1 : v % SV_MAX / parseFloat(SV_MAX);
+
+    var i = Math.floor(h);
+    var f = h - i;
+    var p = v * (1 - s);
+    var q = v * (1 - f * s);
+    var t = v * (1 - (1 - f) * s);
+    var mod = i % 6;
+    var r = [v, q, p, p, t, v][mod];
+    var g = [t, v, v, q, p, p][mod];
+    var b = [p, p, t, v, v, q][mod];
+
+    return { r: Math.round(r * RGB_MAX), g: Math.round(g * RGB_MAX), b: Math.round(b * RGB_MAX) };
+  };
+
+  colorHelper.pastel = {
+
+    random: function random() {
+      var hsv = { h: randomFromRange(0, 360), s: 43, v: 84 };
+      return colorHelper.hsv_to_rgb(hsv);
+    }
+
+  };
+
   var _class = function () {
     function _class(_ref) {
       var _ref$position = _ref.position;
       var position = _ref$position === undefined ? { x: 0, y: 0 } : _ref$position;
       var _ref$color = _ref.color;
-      var color = _ref$color === undefined ? { r: 255, g: 0, b: 0 } : _ref$color;
+      var color = _ref$color === undefined ? colorHelper.pastel.random() : _ref$color;
       var _ref$length = _ref.length;
       var length = _ref$length === undefined ? 10 : _ref$length;
       var _ref$direction = _ref.direction;
@@ -446,8 +509,7 @@
         length: Math.floor(rand1 * 100),
         direction: Math.floor(rand2 * 360),
         autonomous: true,
-        thinkInterval: Math.floor(20 + rand3 * 50),
-        color: { r: Math.floor(rand1 * 255), g: Math.floor(rand2 * 255), b: Math.floor(rand3 * 255) }
+        thinkInterval: Math.floor(20 + rand3 * 50)
       }));
     }
   };
