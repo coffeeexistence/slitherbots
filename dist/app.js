@@ -65,7 +65,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       entities.update = function () {
         entities.all.forEach(function (entity) {
-          entity.move();
+          entity.update();
         });
       };
 
@@ -414,8 +414,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         return this.currentPosition;
       }
     }, {
-      key: 'move',
-      value: function move() {
+      key: 'update',
+      value: function update() {
         if (this.autonomous) {
           this.think();
         }

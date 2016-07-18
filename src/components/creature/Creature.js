@@ -42,7 +42,7 @@ export default class {
     return this.currentPosition;
   }
 
-  move() {
+  update() {
     if(this.autonomous) {
       this.think();
     }

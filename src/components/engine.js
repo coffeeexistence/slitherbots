@@ -52,7 +52,7 @@ export default function () {
 
     entities.update = () => {
       entities.all.forEach((entity) => {
-        entity.move();
+        entity.update();
       });
     };
 

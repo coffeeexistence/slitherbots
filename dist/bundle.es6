@@ -61,7 +61,7 @@
 
       entities.update = function () {
         entities.all.forEach(function (entity) {
-          entity.move();
+          entity.update();
         });
       };
 
@@ -411,8 +411,8 @@
         return this.currentPosition;
       }
     }, {
-      key: 'move',
-      value: function move() {
+      key: 'update',
+      value: function update() {
         if (this.autonomous) {
           this.think();
         }
