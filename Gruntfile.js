@@ -1,10 +1,6 @@
 'use strict';
 
-var sourceFiles = [
-  'src/setup.js',
-  'src/components/**/*.js',
-  'src/slitherbots.js'
-];
+var sourceFiles = 'src/**/*.js';
 
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
@@ -44,7 +40,6 @@ module.exports = function(grunt) {
     }
   });
 
-  // grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-rollup');
 

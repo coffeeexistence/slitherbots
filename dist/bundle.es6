@@ -324,7 +324,7 @@
       this.currentPosition = position;
       this.segmentPositions = [position];
 
-      this.segmentDistance = 9;
+      this.segmentDistance = 6;
 
       this.color = color;
 
@@ -380,7 +380,7 @@
     }, {
       key: 'radius',
       value: function radius() {
-        return 8 + this.length / 20;
+        return 3 + this.length / 15;
       }
     }, {
       key: 'sprites',
