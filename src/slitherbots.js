@@ -59,7 +59,7 @@ let update = () => {
 
 window.setInterval( () => {
   window.requestAnimationFrame(update);
-}, 1);
+}, 2);
 
 /*
 var ctx = c.getContext("2d");

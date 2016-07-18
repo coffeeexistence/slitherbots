@@ -1,6 +1,62 @@
 (function () {
   'use strict';
 
+  function renderService (engine) {
+    var render = {};
+
+    var addSprites = function addSprites(sprites, spriteArr) {
+
+      sprites.forEach(function (sprite) {
+        spriteArr.push(sprite);
+      });
+    };
+
+    var entities = {
+      all: []
+    };
+
+    entities.drawSprites = function (ctx) {
+      var drawEntity = function drawEntity(entity) {
+        entity.sprites().forEach(function (sprite) {
+          ctx.beginPath();
+          sprite.draw(ctx);
+          ctx.closePath();
+        });
+      };
+
+      entities.all.forEach(drawEntity);
+    };
+
+    entities.update = function () {
+      entities.all.forEach(function (entity) {
+        entity.update();
+      });
+    };
+
+    render.addEntity = function (entity) {
+      entities.all.push(entity);
+    };
+
+    render.update = function () {
+      entities.update();
+
+      if (engine.draw.iteration > engine.draw.interval - 1) {
+        if (engine.showFps) engine.draw.intervalTime();
+        engine.draw.nextInterval();
+
+        var ctx = engine.canvas.getContext('2d');
+
+        ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+
+        entities.drawSprites(ctx);
+      } else {
+        engine.draw.iteration++;
+      }
+    };
+
+    return render;
+  }
+
   function engineService () {
     var engine = {};
 
@@ -33,63 +89,7 @@
       console.log(engine.canvas);
     };
 
-    var renderService = function renderService() {
-      var render = {};
-
-      var addSprites = function addSprites(sprites, spriteArr) {
-
-        sprites.forEach(function (sprite) {
-          spriteArr.push(sprite);
-        });
-      };
-
-      var entities = {
-        all: []
-      };
-
-      entities.drawSprites = function (ctx) {
-        var drawEntity = function drawEntity(entity) {
-          entity.sprites().forEach(function (sprite) {
-            ctx.beginPath();
-            sprite.draw(ctx);
-            ctx.closePath();
-          });
-        };
-
-        entities.all.forEach(drawEntity);
-      };
-
-      entities.update = function () {
-        entities.all.forEach(function (entity) {
-          entity.update();
-        });
-      };
-
-      render.addEntity = function (entity) {
-        entities.all.push(entity);
-      };
-
-      render.update = function () {
-        entities.update();
-
-        if (engine.draw.iteration > engine.draw.interval - 1) {
-          if (engine.showFps) engine.draw.intervalTime();
-          engine.draw.nextInterval();
-
-          var ctx = engine.canvas.getContext('2d');
-
-          ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
-
-          entities.drawSprites(ctx);
-        } else {
-          engine.draw.iteration++;
-        }
-      };
-
-      return render;
-    };
-
-    engine.render = renderService();
+    engine.render = renderService(engine);
 
     return engine;
   }
@@ -450,6 +450,7 @@
         var spriteArr = this.segments.map(function (segment) {
           return segment.sprite;
         }).reverse();
+        return spriteArr;
       }
     }, {
       key: 'generateInitialSegments',
@@ -537,7 +538,7 @@
 
   window.setInterval(function () {
     window.requestAnimationFrame(update);
-  }, 1);
+  }, 2);
 
   /*
   var ctx = c.getContext("2d");

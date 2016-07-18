@@ -76,7 +76,7 @@ export default class {
     let spriteArr = this.segments.map((segment) => {
       return segment.sprite;
     }).reverse();
-    
+    return spriteArr;
   }
 
 
