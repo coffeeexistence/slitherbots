@@ -37,6 +37,10 @@ export default class {
     this.segments = this.generateInitialSegments();
   }
 
+  position() {
+    return this.currentPosition;
+  }
+
   move() {
     if(this.autonomous) {
       this.think();
@@ -84,8 +88,6 @@ export default class {
     });
     this.rootSegment = rootSegment;
 
-    console.log('root segment created');
-
     let segments = [rootSegment];
 
     for(let idx = 1; idx < this.length; idx++) {
@@ -95,11 +97,10 @@ export default class {
         colorModifier: idx/this.length
       });
       childSegment.update();
-      console.log('updated child segment');
+
       segments.push(childSegment);
     }
 
-    console.log('initial segments generated');
 
     return segments;
   }

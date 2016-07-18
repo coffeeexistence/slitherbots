@@ -346,6 +346,11 @@
     }
 
     createClass(_class, [{
+      key: 'position',
+      value: function position() {
+        return this.currentPosition;
+      }
+    }, {
       key: 'move',
       value: function move() {
         if (this.autonomous) {
@@ -397,8 +402,6 @@
         });
         this.rootSegment = rootSegment;
 
-        console.log('root segment created');
-
         var segments = [rootSegment];
 
         for (var idx = 1; idx < this.length; idx++) {
@@ -408,11 +411,9 @@
             colorModifier: idx / this.length
           });
           childSegment.update();
-          console.log('updated child segment');
+
           segments.push(childSegment);
         }
-
-        console.log('initial segments generated');
 
         return segments;
       }
