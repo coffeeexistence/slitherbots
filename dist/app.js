@@ -5,35 +5,32 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 (function () {
   'use strict';
 
-  function renderService(engine) {
+  var entities = { all: [] };
+
+  entities.drawSprites = function (ctx) {
+    var drawEntity = function drawEntity(entity) {
+      entity.sprites().forEach(function (sprite) {
+        ctx.beginPath();
+        sprite.draw(ctx);
+        ctx.closePath();
+      });
+    };
+    entities.all.forEach(drawEntity);
+  };
+
+  entities.update = function () {
+    entities.all.forEach(function (entity) {
+      entity.update();
+    });
+  };
+
+  function renderFactory(engine) {
     var render = {};
 
     var addSprites = function addSprites(sprites, spriteArr) {
 
       sprites.forEach(function (sprite) {
         spriteArr.push(sprite);
-      });
-    };
-
-    var entities = {
-      all: []
-    };
-
-    entities.drawSprites = function (ctx) {
-      var drawEntity = function drawEntity(entity) {
-        entity.sprites().forEach(function (sprite) {
-          ctx.beginPath();
-          sprite.draw(ctx);
-          ctx.closePath();
-        });
-      };
-
-      entities.all.forEach(drawEntity);
-    };
-
-    entities.update = function () {
-      entities.all.forEach(function (entity) {
-        entity.update();
       });
     };
 
@@ -61,6 +58,23 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     return render;
   }
 
+  function drawFactory(drawInterval) {
+    return {
+      interval: drawInterval,
+      nextInterval: function nextInterval() {
+        this.iteration = 0;
+        this.intervalStart = new Date();
+      },
+      iteration: 0,
+      intervalStart: new Date(),
+      intervalTime: function intervalTime() {
+        var timePerInterval = new Date() - this.intervalStart;
+        var updatesPerSecond = this.interval * (1000 / timePerInterval);
+        console.log("updates per second:", Math.ceil(updatesPerSecond));
+      }
+    };
+  }
+
   function engineService() {
     var engine = {};
 
@@ -72,28 +86,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var showFps = _ref$showFps === undefined ? false : _ref$showFps;
 
       engine.canvas = canvas;
-      engine.draw = {
-        interval: drawInterval,
-        nextInterval: function nextInterval() {
-          this.iteration = 0;
-          this.intervalStart = new Date();
-        },
-        iteration: 0,
-        intervalStart: new Date(),
-        intervalTime: function intervalTime() {
-          var timePerInterval = new Date() - this.intervalStart;
-          var updatesPerSecond = this.interval * (1000 / timePerInterval);
-          console.log("updates per second:", Math.ceil(updatesPerSecond));
-        }
-      };
+      engine.draw = drawFactory(drawInterval);
       engine.showFps = showFps;
+      engine.logCanvas = function () {
+        console.log(engine.canvas);
+      };
+      engine.render = renderFactory(engine);
     };
-
-    engine.logCanvas = function () {
-      console.log(engine.canvas);
-    };
-
-    engine.render = renderService(engine);
 
     return engine;
   }
