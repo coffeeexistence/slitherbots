@@ -163,7 +163,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         return {
           type: 'circle',
           position: this.position,
-          radius: this.radius
+          radius: this.radius,
+          cell: function cell() {}
         };
       }
     }, {
@@ -449,7 +450,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     }, {
       key: 'sprites',
       value: function sprites() {
-        return this.segments.map(function (segment) {
+        var spriteArr = this.segments.map(function (segment) {
           return segment.sprite;
         }).reverse();
       }

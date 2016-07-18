@@ -1,4 +1,4 @@
-import engineService from './components/engine';
+import engineService from './components/engine/engine';
 
 function gameFactory() {
   let game = {};

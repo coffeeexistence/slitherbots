@@ -159,7 +159,8 @@
         return {
           type: 'circle',
           position: this.position,
-          radius: this.radius
+          radius: this.radius,
+          cell: function cell() {}
         };
       }
     }, {
@@ -446,7 +447,7 @@
     }, {
       key: 'sprites',
       value: function sprites() {
-        return this.segments.map(function (segment) {
+        var spriteArr = this.segments.map(function (segment) {
           return segment.sprite;
         }).reverse();
       }

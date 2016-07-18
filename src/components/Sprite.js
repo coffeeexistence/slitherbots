@@ -12,7 +12,10 @@ export default class {
     return {
       type: 'circle',
       position: this.position,
-      radius: this.radius
+      radius: this.radius,
+      cell: () => {
+        
+      }
     };
   }
 
