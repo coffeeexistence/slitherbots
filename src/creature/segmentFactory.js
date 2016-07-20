@@ -1,4 +1,4 @@
-import Sprite from '../Sprite';
+import Sprite from '../Sprite/Sprite';
 import directionHelper from '../helpers/direction';
 
  export default function ({creature, startPosition}) {

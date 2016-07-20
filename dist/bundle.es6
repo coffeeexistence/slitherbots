@@ -79,34 +79,29 @@
     return draw;
   }
 
-  function engineService () {
+  function collisionFactory () {
+    var collision = {};
+
+    return collision;
+  }
+
+  function engineFactory (_ref) {
+    var canvas = _ref.canvas;
+    var _ref$drawInterval = _ref.drawInterval;
+    var drawInterval = _ref$drawInterval === undefined ? 5 : _ref$drawInterval;
+    var _ref$showFps = _ref.showFps;
+    var showFps = _ref$showFps === undefined ? false : _ref$showFps;
+
     var engine = {};
 
-    engine.initialize = function (_ref) {
-      var canvas = _ref.canvas;
-      var _ref$drawInterval = _ref.drawInterval;
-      var drawInterval = _ref$drawInterval === undefined ? 5 : _ref$drawInterval;
-      var _ref$showFps = _ref.showFps;
-      var showFps = _ref$showFps === undefined ? false : _ref$showFps;
-
-      engine.canvas = canvas;
-      engine.draw = drawFactory(drawInterval, showFps);
-      engine.logCanvas = function () {
-        console.log(engine.canvas);
-      };
-      engine.render = renderFactory(engine);
-    };
+    engine.canvas = canvas;
+    engine.draw = drawFactory(drawInterval, showFps);
+    engine.collision = collisionFactory({ engine: engine, cellCount: 4, show: true });
+    engine.render = renderFactory(engine);
+    console.log("creating engine", engine);
 
     return engine;
   }
-
-  function gameFactory() {
-    var game = {};
-    game.engine = engineService();
-    return game;
-  }
-
-  var game = gameFactory();
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
@@ -489,67 +484,59 @@
     return _class;
   }();
 
+  function simFactory (_ref) {
+    var _ref$updateRate = _ref.updateRate;
+    var updateRate = _ref$updateRate === undefined ? 2 : _ref$updateRate;
+    var canvas = _ref.canvas;
+    var _ref$drawInterval = _ref.drawInterval;
+    var drawInterval = _ref$drawInterval === undefined ? 6 : _ref$drawInterval;
+    var _ref$showFps = _ref.showFps;
+    var showFps = _ref$showFps === undefined ? false : _ref$showFps;
+
+    var sim = {};
+
+    sim.engine = engineFactory({ canvas: canvas, drawInterval: drawInterval, showFps: showFps });
+    console.log(sim.engine);
+
+    sim.addCreatures = function (number) {
+
+      var canvasCenter = function canvasCenter() {
+        return { x: canvas.width / 2, y: canvas.height / 2 };
+      };
+
+      for (var i = 0; i < number; i++) {
+        var rand1 = Math.random();
+        var rand2 = Math.random();
+        var rand3 = Math.random();
+        console.log(sim.engine.render);
+
+        sim.engine.render.addEntity(new _class({
+          position: canvasCenter(),
+          length: Math.floor(rand1 * 100),
+          direction: Math.floor(rand2 * 360),
+          autonomous: true,
+          thinkInterval: Math.floor(20 + rand3 * 50)
+        }));
+      }
+    };
+
+    sim.start = function () {
+      window.setInterval(function () {
+        window.requestAnimationFrame(sim.engine.render.update);
+      }, updateRate);
+    };
+
+    return sim;
+  }
+
   var canvas = document.getElementById("slitherbots-canvas");
 
   canvas.width = window.innerWidth * 0.90;
   canvas.height = window.innerHeight * 0.90;
 
-  console.log(game);
+  var sim = simFactory({ canvas: canvas });
 
-  game.engine.initialize({ canvas: canvas, drawInterval: 6, showFps: false });
-  game.engine.logCanvas();
-
-  var canvasCenter = function canvasCenter() {
-    return { x: canvas.width / 2, y: canvas.height / 2 };
-  };
-
-  var addBots = function addBots(number) {
-    for (var i = 0; i < number; i++) {
-      var rand1 = Math.random();
-      var rand2 = Math.random();
-      var rand3 = Math.random();
-
-      game.engine.render.addEntity(new _class({
-        position: canvasCenter(),
-        length: Math.floor(rand1 * 100),
-        direction: Math.floor(rand2 * 360),
-        autonomous: true,
-        thinkInterval: Math.floor(20 + rand3 * 50)
-      }));
-    }
-  };
-
-  addBots(10);
-
-  var slitherbot2 = new _class({
-    position: canvasCenter(),
-    length: 15,
-    direction: 1,
-    color: { r: 255, g: 100, b: 255 }
-  });
-
-  var count = 0;
-  var direction = 1;
-  var variability = 100;
-
-  var update = function update() {
-    if (count % 10 === 0) {
-      var variation = parseInt(Math.random() * variability) - variability / 2;
-      direction += 20 + variation;
-      slitherbot2.updateDirection(direction);
-    }
-    count++;
-    game.engine.render.update();
-  };
-
-  window.setInterval(function () {
-    window.requestAnimationFrame(update);
-  }, 2);
-
-  /*
-  var ctx = c.getContext("2d");
-  ctx.fillStyle = "#FF0000";
-  ctx.fillRect(0,0,150,75);
-  */
+  sim.addCreatures(30);
+  sim.start();
 
 }());
