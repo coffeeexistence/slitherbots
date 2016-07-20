@@ -6,8 +6,7 @@ export default function () {
 
   engine.initialize = ({canvas, drawInterval=5, showFps=false}) => {
     engine.canvas = canvas;
-    engine.draw = drawFactory(drawInterval);
-    engine.showFps = showFps;
+    engine.draw = drawFactory(drawInterval, showFps);
     engine.logCanvas = () => { console.log(engine.canvas); };
     engine.render = renderFactory(engine);
   };

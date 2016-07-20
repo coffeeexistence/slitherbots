@@ -23,13 +23,6 @@
   function renderFactory (engine) {
     var render = {};
 
-    var addSprites = function addSprites(sprites, spriteArr) {
-
-      sprites.forEach(function (sprite) {
-        spriteArr.push(sprite);
-      });
-    };
-
     render.addEntity = function (entity) {
       entities.all.push(entity);
     };
@@ -37,10 +30,9 @@
     render.update = function () {
       entities.update();
 
-      if (engine.draw.iteration > engine.draw.interval - 1) {
-        if (engine.showFps) engine.draw.intervalTime();
-        engine.draw.nextInterval();
+      var willDraw = engine.draw.update();
 
+      if (willDraw) {
         var ctx = engine.canvas.getContext('2d');
 
         ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
@@ -54,21 +46,37 @@
     return render;
   }
 
-  function drawFactory (drawInterval) {
-    return {
-      interval: drawInterval,
-      nextInterval: function nextInterval() {
-        this.iteration = 0;
-        this.intervalStart = new Date();
-      },
-      iteration: 0,
-      intervalStart: new Date(),
-      intervalTime: function intervalTime() {
-        var timePerInterval = new Date() - this.intervalStart;
-        var updatesPerSecond = this.interval * (1000 / timePerInterval);
-        console.log("updates per second:", Math.ceil(updatesPerSecond));
+  function drawFactory (drawInterval, showFps) {
+
+    var draw = {
+      drawInterval: drawInterval,
+      count: 0,
+      intervalStartTime: new Date()
+    };
+
+    draw.resetCount = function () {
+      draw.count = 0;
+      draw.intervalStart = new Date();
+    };
+
+    draw.logTime = function () {
+      var timePerInterval = new Date() - draw.intervalStartTime;
+      var updatesPerSecond = draw.count * (1000 / timePerInterval);
+      console.log("updates per second:", Math.ceil(updatesPerSecond));
+    };
+
+    draw.update = function () {
+      if (draw.count > draw.drawInterval - 1) {
+        if (showFps) draw.logTime();
+        draw.resetCount();
+        return true;
+      } else {
+        draw.count++;
+        return false;
       }
     };
+
+    return draw;
   }
 
   function engineService () {
@@ -82,8 +90,7 @@
       var showFps = _ref$showFps === undefined ? false : _ref$showFps;
 
       engine.canvas = canvas;
-      engine.draw = drawFactory(drawInterval);
-      engine.showFps = showFps;
+      engine.draw = drawFactory(drawInterval, showFps);
       engine.logCanvas = function () {
         console.log(engine.canvas);
       };
